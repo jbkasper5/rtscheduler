@@ -9,6 +9,7 @@ char* read_line(FILE* file){
         // if configuration file is written correctly, we should never read an EOF token
         if(c == EOF){
             printf("Error: unexpected EOF reached when parsing file.\n");
+            fclose(file);
             exit(1);
         }
         chars_per_line++;
@@ -47,6 +48,7 @@ taskset_t* parse_taskset(char* path){
     FILE* file = fopen(path, "r");
     if(!file){
         printf("Error: file '%s' not found.\n", path);
+        fclose(file);
         exit(1);
     }
 
@@ -55,6 +57,7 @@ taskset_t* parse_taskset(char* path){
 
     if(strlen(line) != 1){
         printf("Error: configuration file format not recognized.\n");
+        fclose(file);
         exit(1);
     }
 
@@ -62,6 +65,7 @@ taskset_t* parse_taskset(char* path){
     int num_tasks = atoi(line);
     if(num_tasks == 0){
         printf("Error: Specify valid number of tasks (integer > 0).\n");
+        fclose(file);
         exit(1);
     }
 
@@ -96,5 +100,7 @@ taskset_t* parse_taskset(char* path){
         // free line allocated by read_line
         free(line);
     }
+
+    fclose(file);
     return taskset;
 }

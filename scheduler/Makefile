@@ -47,3 +47,7 @@ clean:
 .PHONY: asm
 asm: all
 	objdump -d $(TARGET) > asm.s
+
+.PHONY: valgrind
+valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET)
