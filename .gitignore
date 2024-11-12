@@ -1,2 +1,4 @@
 bin/
 exe
+asm.s
+*.cfg
