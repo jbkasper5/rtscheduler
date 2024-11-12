@@ -5,6 +5,9 @@
 
 int main(int argc, char** argv){
     taskset_t* set = parse_taskset(CFGPATH);
+    for(int i = 0; i < set->length; i++){
+        print_task(set->tasks + i);
+    }
     schedule_t* schedule = edf_scheduler(set);
     if(schedule){
         printf("Task set is schedulable!\n");

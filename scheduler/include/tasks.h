@@ -20,7 +20,7 @@ typedef struct Task_s{
     float refresh;                  // server refresh rate (if task is periodic server)
     float deadline;                 // task deadline
     float offset;                   // initial activation offset of the task
-    float priority;                 // task priority (changes based on scheduling algorithm)
+    // float priority;                 // task priority (changes based on scheduling algorithm)
 } task_t;
 
 typedef struct TaskSet_s{
@@ -38,10 +38,9 @@ typedef struct Schedule_s{
 }schedule_t;
 
 
-task_t* task_init();
-taskset_t* taskset_init();
+void print_task(task_t* task);
+taskset_t* taskset_init(int num_tasks);
 schedule_t* schedule_init();
 
-void task_destroy(task_t* task);
 void taskset_destroy(taskset_t* taskset);
 void schedule_destroy(schedule_t* schedule);

@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifndef __HEADER_H__ // If this is NOT defined
-#define __HEADER_H__ // Define it for the first time
-
+#ifndef __HEADER_H__
+#define __HEADER_H__
 #include "tasks.h"
-
-#endif // Toes protected
+#endif
 
 #define ITEMS_PER_LINE  7
-#define DELIMITER       ":"
+#define DELIMITER       ","
 
 enum PARSE_CODES{
     ERROR,

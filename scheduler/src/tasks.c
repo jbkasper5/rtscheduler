@@ -3,22 +3,20 @@
 #define TRUE    1
 #define FALSE   0
 
-task_t* task_init(){
-    task_t* task = malloc(sizeof(task));
-    task->type = periodic;
-    task->execution_time = 0;
-    task->period = 0;
-    task->refresh = 0;
-    task->deadline = 0;
-    task->offset = 0;
-    task->priority = 0;
-    return task;
+void print_task(task_t* task){
+    printf("Task:\n");
+    printf("\tType:             %u\n", task->type);
+    printf("\tExecution time:   %.3f\n", task->execution_time);
+    printf("\tPeriod:           %.3f\n", task->period);
+    printf("\tRefresh:          %.3f\n", task->refresh);
+    printf("\tDeadline:         %.3f\n", task->deadline);
+    printf("\tOffset:           %.3f\n", task->refresh);
 }
 
-taskset_t* taskset_init(){
+taskset_t* taskset_init(int num_tasks){
     taskset_t* taskset = malloc(sizeof(taskset_t));
-    taskset->length = 0;
-    taskset->tasks = NULL;
+    taskset->length = num_tasks;
+    taskset->tasks = malloc(sizeof(task_t) * num_tasks);
     taskset->algorithm = RM;
     taskset->schedulable = FALSE;
     taskset->schedule = NULL;
@@ -33,16 +31,9 @@ schedule_t* schedule_init(){
     return schedule;
 }
 
-void task_destroy(task_t* task){
-    if(!task) return;
-    free(task);
-}
-
 void taskset_destroy(taskset_t* taskset){
     if(!taskset) return;
-    for(int i = 0; i < taskset->length; i++){
-        task_destroy(taskset->tasks + i);
-    }
+    free(taskset->tasks);
     if(taskset->schedule) schedule_destroy(taskset->schedule);
     free(taskset);
 }

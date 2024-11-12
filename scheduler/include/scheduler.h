@@ -1,9 +1,7 @@
-#ifndef __HEADER_H__ // If this is NOT defined
-#define __HEADER_H__ // Define it for the first time
-
+#ifndef __HEADER_H__
+#define __HEADER_H__
 #include "tasks.h"
-
-#endif // Toes protected
+#endif
 
 
 schedule_t* edf_scheduler(taskset_t* taskset);

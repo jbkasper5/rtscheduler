@@ -34,6 +34,15 @@ char* read_line(FILE* file){
     return str;
 }
 
+void parse_task(taskset_t* taskset, int task, char** line){
+    // line[1];                                    // task type
+    taskset->tasks[task].execution_time = strtof(line[2], NULL);     // execution time
+    taskset->tasks[task].period = strtof(line[3], NULL);             // period
+    taskset->tasks[task].refresh = strtof(line[4], NULL);            // refresh
+    taskset->tasks[task].deadline = strtof(line[5], NULL);           // deadline
+    taskset->tasks[task].offset = strtof(line[6], NULL);             // offset
+}
+
 taskset_t* parse_taskset(char* path){
     FILE* file = fopen(path, "r");
     if(!file){
@@ -58,26 +67,34 @@ taskset_t* parse_taskset(char* path){
 
     // free the first line, now we'll be parsing the task definition lines
     free(line);
-    
+
+    // create the taskset
+    taskset_t* taskset = taskset_init(num_tasks);
+
+    char* linesep[ITEMS_PER_LINE];
+
     for(int i = 0; i < num_tasks; i++){
 
         // read the current task declaration line
         line = read_line(file);
-        char* linesep[ITEMS_PER_LINE];
 
         // separate into the repsective task attributes with strtok
         linesep[0] = strtok(line, DELIMITER);
         for(int j = 1; j < ITEMS_PER_LINE; j++){
             linesep[j] = strtok(NULL, DELIMITER);
+
+            // sanity check to make sure parsing is successful
+            if(!linesep[j]){
+                printf("Error: error in separating input using delimiter '%s'.\n", DELIMITER);
+                exit(1);
+            }
         }
 
-        for(int j = 0; j < ITEMS_PER_LINE; j++){
-            printf("linesep[%d] = '%s'\n", j, linesep[j]);
-        }
-        printf("\n");
+        // populate the task array with the current line we wish to parse
+        parse_task(taskset, i, linesep);
 
         // free line allocated by read_line
         free(line);
     }
-    return NULL;
+    return taskset;
 }
