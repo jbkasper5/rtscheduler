@@ -38,9 +38,11 @@ $(BIN_DIR) $(DEBUG_BIN_DIR):
 
 .PHONY: clean
 clean:
-	$(RM) -rf $(TARGET)
-	$(RM) -rf $(DTARGET)
-	$(RM) -rf $(BIN_DIR)
+	rm -rf $(TARGET)
+	rm -rf $(DTARGET)
+	rm -rf $(BIN_DIR)
+	rm -rf asm.s
+
 
 .PHONY: asm
 asm: all

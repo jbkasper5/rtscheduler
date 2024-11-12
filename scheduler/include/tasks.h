@@ -1,3 +1,7 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+
 enum Type{
     periodic,
     aperiodic,
