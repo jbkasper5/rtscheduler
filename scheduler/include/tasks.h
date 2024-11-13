@@ -1,6 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifndef __MACRO_H__
+#define __MACRO_H__
+#include "macros.h"
+#endif
+
 
 enum Type{
     periodic,

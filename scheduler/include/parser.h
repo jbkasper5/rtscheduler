@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef __MACRO_H__
+#define __MACRO_H__
+#include "macros.h"
+#endif
+
 #ifndef __HEADER_H__
 #define __HEADER_H__
 #include "tasks.h"

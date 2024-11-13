@@ -1,8 +1,5 @@
 #include "tasks.h"
 
-#define TRUE    1
-#define FALSE   0
-
 void print_task(task_t* task){
     printf("Task:\n");
     printf("\tType:             %u\n", task->type);
