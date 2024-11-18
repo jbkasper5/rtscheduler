@@ -1,35 +1,30 @@
 #include "scheduler.h"
 
-int rm_least_upper_bound(taskset_t* taskset){
-    float util = 0;
-    for(int i = 0; i < taskset->length; i++){
-        util += (float) taskset->tasks[i].execution_time / taskset->tasks[i].period;
+void signal_tm_ready(int signum){
+    printf("Parent process '%d' received SIGUSR2\n", getpid());
+}
+
+void scheduler(void){
+    // set up handler so the parent knows when the task manager is ready
+    signal(SIGUSR2, signal_tm_ready);
+
+    // fork the process
+    pid_t pid = fork();
+
+    // child process becomes the task manager on a different core
+    if(pid == 0){
+        printf("Child process, executing task manager...\n");
+        task_manager();
     }
-    float bound = taskset->length * (pow(2, (float)1 / taskset->length) - 1);
-    P("Utilization: %f\n", util);
-    P("Bound: %f\n", bound);
-    return (util <= bound);
-}
 
-int rm_hyperbolic_bound(taskset_t* taskset){
-    float util = 0;
-    for(int i = 0; i < taskset->length; i++){
-        util *= ((float) taskset->tasks[i].execution_time / taskset->tasks[i].period + 1);
-    }
-    P("Product: %f\n", util);
-    return (util <= 2);
-}
+    // wait for task manager process to signal that it's ready
+    pause();
+    printf("Parent process: supplying tasks.\n");
+    // signal to the task manager
+    kill(pid, SIGUSR1);
+    kill(pid, SIGINT);
 
-int rm_response_time_analysis(taskset_t* taskset){
-    return 0;
-}
-
-schedule_t* edf_scheduler(taskset_t* taskset){
-    schedule_t* schedule = schedule_init();
-    return schedule;
-}
-
-schedule_t* rm_scheduler(taskset_t* taskset){
-
-    return NULL;
+    // wait for TM to finish
+    wait(&pid);
+    printf("Child died.\n");
 }

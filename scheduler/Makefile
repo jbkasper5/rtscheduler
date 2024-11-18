@@ -22,10 +22,10 @@ re: clean all
 debug: $(DEBUG_BIN_DIR) $(DTARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $^ -o $@ $(CFLAGS) -I $(INCLUDE_PATH)
+	$(CC) $^ -o $@ $(CFLAGS) -I $(INCLUDE_PATH) -lm
 
 $(DTARGET): $(DOBJS)
-	$(CC) $^ -o $@ $(CFLAGS) -I $(INCLUDE_PATH)
+	$(CC) $^ -o $@ $(CFLAGS) -I $(INCLUDE_PATH) -lm
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $< -o $@ $(CFLAGS) -I $(INCLUDE_PATH)

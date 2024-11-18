@@ -1,3 +1,4 @@
+#include "schedulebuilders.h"
 #include "scheduler.h"
 #include "parser.h"
 
@@ -18,5 +19,6 @@ int main(int argc, char** argv){
         P("Task set is not schedulable.\n");
     }
     taskset_destroy(set);
+    scheduler();
     return 0;
 }
