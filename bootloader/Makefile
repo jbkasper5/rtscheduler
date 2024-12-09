@@ -12,7 +12,7 @@ LINKERFILE=linker.ld
 CC=				riscv64-unknown-elf-gcc
 LINKER=			riscv64-unknown-elf-ld
 OPT=			-O3
-RISCFLAGS=		-mcmodel=medany
+RISCFLAGS=		-mcmodel=medany -march=rv64g
 CFLAGS=			-g -std=c11 -nostdlib -nodefaultlibs -nostartfiles $(RISCFLAGS)
 TARGET=			exe
 LFLAGS=			 

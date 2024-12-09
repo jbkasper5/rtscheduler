@@ -2,8 +2,11 @@
 .section .data
     .fill 2048, 4, 0
 stack:
+    .fill 1024, 4, 0
+mstack:
 
-printlock: .word 1
+.align 3
+printlock: .dword 1
 
 .section .text
 .globl lock_acquire
@@ -31,6 +34,21 @@ _skip_scheduler_proc:
 
 
 trap_handler: 
+    csrw mscratch, sp
+    la  sp, mstack
+    addi sp, sp, -16
+    sd  s0, 0(sp)
+    sd  s1, 8(sp)
+
+    csrr s0, mepc
+    addi s0, s0, 4
+    csrw mepc, s0
+
+
+    ld  s0, 0(sp)
+    ld  s1, 8(sp)
+    addi sp, sp, 16
+    csrr sp, mscratch
     mret
 
 
@@ -38,8 +56,6 @@ trap_handler:
 scheduler_proc_init:
     add sp,sp,-8
     sd ra,0(sp)
-    csrr a0, mhartid                    # get the core ID using atomic read instruction
-    jal printi
     jal main                            # jump to main function
     ld ra,0(sp)
     add sp,sp,8
@@ -49,8 +65,6 @@ scheduler_proc_init:
 taskman_proc_init:
     add sp,sp,-8
     sd ra,0(sp)
-    csrr a0, mhartid                    # get the core ID using atomic read instruction
-    jal printi
     jal taskmain                        # jump to task manager's main function
     ld ra,0(sp)
     add sp,sp,8
@@ -62,23 +76,13 @@ lock_acquire:
     sd ra,0(sp)
     sd s0, 8(sp)
     sd s1, 16(sp)
-    # la s0, printlock                   # load address of the spinlock integer
-    # move a0, s0
-    # jal printi
-
-    # can load and store from s0 just fine
-    # li t0, -2
-    # sd t0, (s0)
-    # ld a0, (s0)
-    # jal printi
+    la s0, printlock                   # load address of the spinlock integer
 
 _lock_acquire_loop:
-    # causes segmentation fault
-    # amoswap.w s1, zero, (t0)
-    lw s1, (s0)
-    sw zero, (s0)
-    beqz s1, _lock_acquire_loop      # if the value returned from the swap was 0, it was already locked
+    li t0, 0
+    amoswap.w s1, s7, (s0)
 
+    beqz s1, _lock_acquire_loop      # if the value returned from the swap was 0, it was already locked
     ld ra,0(sp)
     ld s0,8(sp)
     ld s1,16(sp)
@@ -93,7 +97,7 @@ lock_release:
     li t1, 1                            # load immediate 1, for unlocked
     
     # causes segmentation fault
-    # amoswap.w t2, t1, (t0)              # swap the 1 in place
+    amoswap.w t2, t1, (t0)              # swap the 1 in place
     sw t1, (t0)
 
     ld ra,0(sp)
@@ -102,7 +106,5 @@ lock_release:
 
 
 _infinite:    
-#    csrr a0, mhartid                    # get the core ID using atomic read instruction
-#    jal printi
     j _infinite
 
