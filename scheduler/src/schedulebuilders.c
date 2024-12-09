@@ -16,7 +16,7 @@ int rm_least_upper_bound(taskset_t* taskset){
 int rm_hyperbolic_bound(taskset_t* taskset){
     float util = 0;
     for(int i = 0; i < taskset->length; i++){
-        util *= ((float) taskset->tasks[i].execution_time / taskset->tasks[i].period + 1);
+        util *= ((float) taskset->tasks[i]->execution_time / taskset->tasks[i]->period + 1);
     }
     P("Product: %f\n", util);
     return (util <= 2);

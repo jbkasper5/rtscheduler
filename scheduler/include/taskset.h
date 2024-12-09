@@ -3,7 +3,7 @@
 
 #include "tasks.h"
 
-task_t task1 = {
+static task_t task1 = {
     .type = periodic,
     .execution_time = 1.0,
     .period = 5,
@@ -12,7 +12,7 @@ task_t task1 = {
     .offset = 0
 };
 
-task_t task2 = {
+static task_t task2 = {
     .type = periodic,
     .execution_time = 2.0,
     .period = 10,
@@ -21,8 +21,13 @@ task_t task2 = {
     .offset = 3.0
 };
 
-taskset_t TaskSet = {
-    .tasks = {&task1, &task2},
+static task_t* taskarr[] = {
+    &task1,
+    &task2
+};
+
+static taskset_t TaskSet = {
+    .tasks = taskarr,
     .length = 2,
     .algorithm = EDF,
     .schedule = NULL,

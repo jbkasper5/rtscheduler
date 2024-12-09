@@ -32,7 +32,7 @@ typedef struct Task_s{
 } task_t;
 
 typedef struct TaskSet_s{
-    struct Task_s* tasks;           // tasks 
+    struct Task_s** tasks;           // tasks 
     unsigned int length;            // number of tasks in the task set
     enum Scheduler algorithm;       // algorithm used to schedule the task set
     struct Schedule_s* schedule;    // if task set is schedulable, create a schedule
