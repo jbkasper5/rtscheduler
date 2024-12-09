@@ -1,3 +1,6 @@
+#ifndef __TASK_H__
+#define __TASK_H__
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -44,8 +47,5 @@ typedef struct Schedule_s{
 
 
 void print_task(task_t* task);
-taskset_t* taskset_init(int num_tasks);
-schedule_t* schedule_init();
 
-void taskset_destroy(taskset_t* taskset);
-void schedule_destroy(schedule_t* schedule);
+#endif

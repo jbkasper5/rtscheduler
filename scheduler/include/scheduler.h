@@ -1,8 +1,8 @@
+#ifndef __SCHEDULER_H__
+#define __SCHEDULER_H__
+
 #include "taskmanager.h"
 
-typedef struct TCB_s{
-
-} tcb_t;
-
-void signal_tm_ready(int signum);
 void scheduler(void);
+
+#endif
