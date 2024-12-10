@@ -2,19 +2,27 @@
 .section .data
     .fill 2048, 4, 0
 stack:
-    .fill 1024, 4, 0
-mstack:
 
 .align 3
 printlock: .dword 1
 
 .section .text
-.globl lock_acquire
-.globl lock_release
 .globl _start
 
 _start:
     la sp, stack                        # set sp equal to the stack pointer
+
+    # 11 leading zeroes, then 11 -> 0001 1000 0000 0000
+    # two ones set both MPP bits to 1
+    li      t0, 0x1800                  # address of MIE within mstatus
+    csrc    mstatus, t0                 # enable machine-mode interrupts
+
+    # binary -> 1000 0000 1010
+    # first nibble sets SIE and MIE, third nibble sets lower bit of MPP
+    li      t0, 0x80A                   # address of SIE within mstatus
+    csrs    mstatus, t0                 # enable supervisor-mode interrupts
+
+
     la t0, trap_handler                 # set up the machine trap handler jump vector
     csrw mtvec, t0                      # set up jump vector
     csrr t0, mhartid                    # get the core ID using atomic read instruction
@@ -32,30 +40,14 @@ _skip_scheduler_proc:
     j _infinite
 
 
-
-trap_handler: 
-    csrw mscratch, sp
-    la  sp, mstack
-    addi sp, sp, -16
-    sd  s0, 0(sp)
-    sd  s1, 8(sp)
-
-    csrr s0, mepc
-    addi s0, s0, 4
-    csrw mepc, s0
-
-
-    ld  s0, 0(sp)
-    ld  s1, 8(sp)
-    addi sp, sp, 16
-    csrr sp, mscratch
-    mret
-
-
-
 scheduler_proc_init:
     add sp,sp,-8
     sd ra,0(sp)
+
+    # enable timer interrupts only for the scheduling process
+    li t0, 0xa0
+    csrs mie, t0
+    
     jal main                            # jump to main function
     ld ra,0(sp)
     add sp,sp,8
@@ -71,40 +63,6 @@ taskman_proc_init:
     ret
 
 
-lock_acquire:
-    addi sp,sp,-24
-    sd ra,0(sp)
-    sd s0, 8(sp)
-    sd s1, 16(sp)
-    la s0, printlock                   # load address of the spinlock integer
-
-_lock_acquire_loop:
-    li t0, 0
-    amoswap.w s1, s7, (s0)
-
-    beqz s1, _lock_acquire_loop      # if the value returned from the swap was 0, it was already locked
-    ld ra,0(sp)
-    ld s0,8(sp)
-    ld s1,16(sp)
-    addi sp,sp,24
-    ret
-
-lock_release:
-    add sp,sp,-8
-    sd ra,0(sp)
-
-    la t0, printlock                    # load address of spinlock
-    li t1, 1                            # load immediate 1, for unlocked
-    
-    # causes segmentation fault
-    amoswap.w t2, t1, (t0)              # swap the 1 in place
-    sw t1, (t0)
-
-    ld ra,0(sp)
-    add sp,sp,8
-    ret
-
-
 _infinite:    
-    j _infinite
+    j _infinite                         # trap other cores
 

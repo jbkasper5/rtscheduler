@@ -2,8 +2,7 @@
 #include "taskmanager.h"
 
 void taskmain(){
-    lock_acquire();
+    wait_for_interrupt();
     prints("Hello from taskmain!\n");
-    lock_release();
     return;
 }
