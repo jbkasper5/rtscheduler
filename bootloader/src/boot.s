@@ -22,11 +22,10 @@ _start:
     li      t0, 0x80A                   # address of SIE within mstatus
     csrs    mstatus, t0                 # enable supervisor-mode interrupts
 
-
     la t0, trap_handler                 # set up the machine trap handler jump vector
     csrw mtvec, t0                      # set up jump vector
-    csrr t0, mhartid                    # get the core ID using atomic read instruction
 
+    csrr t0, mhartid                    # get the core ID using atomic read instruction
     li t1, 0
     bne t0, t1, _skip_scheduler_proc     # if this is not core 0, skip over scheduler initialization
     jal scheduler_proc_init
@@ -47,7 +46,7 @@ scheduler_proc_init:
     # enable timer interrupts only for the scheduling process
     li t0, 0xa0
     csrs mie, t0
-    
+
     jal main                            # jump to main function
     ld ra,0(sp)
     add sp,sp,8

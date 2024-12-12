@@ -7,14 +7,19 @@
 static unsigned long* uart_addr = (unsigned long*)0x10010000;
 #endif
 
-void prints(char* msg);
-void printi(int msg);
+char nibble_to_char(char nibble);
 void my_getchar(char* c);
 void my_putchar(char msg);
+
+void prints(char* msg);
+void printi(int msg);
+void printh(int msg);
+void printaddr(long msg);
 
 extern void lock_acquire();
 extern void lock_release();
 
 #define INT_SIZE 32
+#define LONG_SIZE (INT_SIZE * 2)
 
 #endif
