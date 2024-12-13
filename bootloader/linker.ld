@@ -8,5 +8,8 @@ SECTIONS {
     bin/main.o(.text)
     bin/print.o(.text)
     bin/taskmanager.o(.text)
+    bin/concurrency.o(.text)
+    bin/traphandler.o(.text)
+    bin/ipc.o(.text)
   } > LIM
 }

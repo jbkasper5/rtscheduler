@@ -66,6 +66,10 @@ scheduler_trap_handler:
 # set up the trap handler for the taskmanager
 # should be a software interrupt triggered by the scheduler
 taskmanager_trap_handler:
-    nop
+
+    # acknowledge the interrupt and set the bit back to 0
+    li t0, 0x02000004         # address of core 1's msip CSR
+    li t1, 0
+    sw t1, (t0)
     j trap_handler_end
 

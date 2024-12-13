@@ -56,6 +56,11 @@ scheduler_proc_init:
 taskman_proc_init:
     add sp,sp,-8
     sd ra,0(sp)
+
+    # enable software interrupts for only the task manager process
+    li t0, 0xf
+    csrs mie, t0
+
     jal taskmain                        # jump to task manager's main function
     ld ra,0(sp)
     add sp,sp,8
