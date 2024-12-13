@@ -41,19 +41,17 @@ int rm_hyperbolic_bound(taskset_t* taskset) {
 
 int rm_response_time_analysis(taskset_t* taskset) { return 0; }
 
-schedule_t* edf_scheduler(taskset_t* taskset) { return NULL; }
-
-schedule_t* rm_scheduler(taskset_t* taskset) {
-    if (!rm_least_upper_bound(taskset)) {
-        return NULL;
+int edf_utilization_bound(taskset_t* taskset) {
+    double u = 0;
+    for (int i = 0; i < taskset->length; i++) {
+        task_t* task = taskset->tasks[i];
+        u += task->execution_time / task->period;
     }
-    taskset->schedulable = TRUE;
+    return u <= 1;
+}
 
-    schedule_t* schedule = malloc(sizeof(schedule_t));
-
-    // Sort tasks by smallest -> largest period
-    task_t* minPeriod[taskset->length];
-    int indexes[taskset->length];
+task_t** min_period(taskset_t* taskset, int* indexes) {
+    task_t** minPeriod = malloc(sizeof(task_t) * taskset->length);
     for (int i = 0; i < taskset->length; i++) {
         task_t* min = taskset->tasks[i];
         int index = i;
@@ -64,8 +62,98 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
             }
         }
         minPeriod[i] = min;
-        indexes[i] = index;
+
+        if (indexes != NULL) {
+            indexes[i] = index;
+        }
     }
+
+    return minPeriod;
+}
+
+// TODO: make generic
+task_t** min_deadline(taskset_t* taskset, int* indexes) {
+    task_t** minDeadline = malloc(sizeof(task_t) * taskset->length);
+    for (int i = 0; i < taskset->length; i++) {
+        task_t* min = taskset->tasks[i];
+        int index = i;
+        for (int j = i + 1; j < taskset->length; j++) {
+            if (taskset->tasks[j]->period < min->period) {
+                min = taskset->tasks[j];
+                index = j;
+            }
+        }
+        minDeadline[i] = min;
+
+        if (indexes != NULL) {
+            indexes[i] = index;
+        }
+    }
+
+    return minDeadline;
+}
+
+schedule_t* edf_scheduler(taskset_t* taskset) {
+    if (!edf_utilization_bound(taskset)) {
+        return NULL;
+    }
+    taskset->schedulable = TRUE;
+
+    schedule_t* schedule = malloc(sizeof(schedule_t));
+
+    // Sort tasks by smallest -> largest deadline
+    int indexes[taskset->length];
+    task_t** minDeadline = min_deadline(taskset, indexes);
+    task_t** minPeriod = min_period(taskset, NULL);
+    int scheduleSize = minPeriod[0]->period;
+    free(minPeriod);
+
+    // initialize schedule to -1 at all time t
+    schedule->schedule = malloc(sizeof(int) * scheduleSize);
+    for (int i = 0; i < scheduleSize; i++) {
+        schedule->schedule[i] = -1;
+    }
+
+    // fill in which task is executing at which t based on their period & deadline
+    // assuming each index in the schedule is 1 time unit away
+    int taskI = 0;
+    for (int t = 0; t < scheduleSize; t++) {
+        task_t* task = minDeadline[taskI];
+        if (t >= task->offset + task->execution_time) {
+            if (taskI + 1 >= taskset->length) {
+                break;
+            }
+            task = minDeadline[++taskI];
+        }
+
+        if (t < task->offset) {
+            continue;
+        }
+
+        schedule->schedule[t] = indexes[taskI];
+    }
+
+    // for (int i = 0; i < scheduleSize; i++) {
+    //     printf("%d ", schedule->schedule[i]);
+    // }
+    // printf("\n");
+
+    free(minDeadline);
+
+    return schedule;
+}
+
+schedule_t* rm_scheduler(taskset_t* taskset) {
+    if (!rm_least_upper_bound(taskset)) {
+        return NULL;
+    }
+    taskset->schedulable = TRUE;
+
+    schedule_t* schedule = malloc(sizeof(schedule_t));
+
+    // Sort tasks by smallest -> largest period
+    int indexes[taskset->length];
+    task_t** minPeriod = min_period(taskset, indexes);
 
     // assuming execution time < period
     // and no preemption
@@ -96,6 +184,8 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
     //     printf("%d ", schedule->schedule[i]);
     // }
     // printf("\n");
+
+    free(minPeriod);
 
     return schedule;
 }
