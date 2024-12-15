@@ -13,13 +13,15 @@ void my_putchar(char msg);
 
 void prints(char* msg);
 void printi(int msg);
-void printh(int msg);
+void printl(long msg);
+void printf(float f);
 void printaddr(long msg);
 
 extern void lock_acquire();
 extern void lock_release();
 
-#define INT_SIZE 32
-#define LONG_SIZE (INT_SIZE * 2)
+#define INT_SIZE    (sizeof(int) * 8)
+#define FLOAT_SIZE  (sizeof(float) * 8)
+#define LONG_SIZE   (sizeof(long) * 8)
 
 #endif

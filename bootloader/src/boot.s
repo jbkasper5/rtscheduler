@@ -1,6 +1,6 @@
 # create an 8KiB region of memory, initialized to zero
 .section .data
-    .fill 2048, 4, 0
+    .fill 8096, 4, 0
 stack:
 
 .align 3

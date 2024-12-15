@@ -2,6 +2,7 @@
 #define __MAIN_H__
 
 #include "print.h"
+#include "time.h"
 extern void lock_acquire();
 extern void lock_release();
 extern void wait_for_interrupt();
