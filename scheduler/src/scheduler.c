@@ -46,13 +46,15 @@ void scheduler(){
                 continue;
             }
             if(dummy_schedule[passed_timeunits] != curr_running_task){
-                prints("Time unit elapsed! Switching to task ");
+                prints("Switching to task ");
                 printi(dummy_schedule[passed_timeunits]);
                 curr_running_task = dummy_schedule[passed_timeunits];
             }else{
                 prints("Continuing execution of task ");
                 printi(curr_running_task);
             }
+            prints("\n");
+            ping_taskmanager();
             prev_timeunit = sched_curr_time;
             passed_timeunits++;
         }

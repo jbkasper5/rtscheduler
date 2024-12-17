@@ -26,7 +26,7 @@ debug: $(DEBUG_BIN_DIR) $(DTARGET)
 
 # @ is the rule, ^ is the prereqs
 $(TARGET): $(OBJS)
-	$(LINKER) -o $@ $^ -T $(LINKERFILE) $(LFLAGS)
+	$(LINKER) -o $@ $^ -T $(LINKERFILE) $(LFLAGS) -DLOCAL
 
 $(BIN_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $< -o $@ $(RISCFLAGS) -I $(INCLUDE_PATH) -w

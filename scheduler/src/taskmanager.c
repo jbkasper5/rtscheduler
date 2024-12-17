@@ -24,7 +24,7 @@ void task(unsigned long execution_time){
     while(mstime() < start_time + execution_time){
         wait_for_interrupt();
         curr_timeunit++;
-        prints("Current TU: ");
+        prints("TM time unit count: ");
         printi(curr_timeunit);
     }
 }
