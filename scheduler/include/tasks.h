@@ -1,13 +1,7 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
-#include <stdlib.h>
-#include <stdio.h>
-
-#ifndef __MACRO_H__
-#define __MACRO_H__
 #include "macros.h"
-#endif
 
 
 enum Type{
@@ -41,6 +35,7 @@ typedef struct TaskSet_s{
 
 typedef struct Schedule_s{
     int* schedule;                  // array of ints, each index denotes which task is currently executing
+    int len;                        // length of the schedule
     int microcycles;                // how ling each microcycle lasts
     int macrocycles;                // how long each macrocycle lasts
 }schedule_t;

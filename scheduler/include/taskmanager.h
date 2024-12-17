@@ -2,6 +2,6 @@
 #define __TASKMANAGER_H__
 
 void task(unsigned long execution_time);
-void task_manager(void);
+void tm_main();
 
 #endif

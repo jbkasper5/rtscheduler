@@ -1,12 +1,8 @@
-#include "schedulebuilders.h"
 #include "scheduler.h"
 
-extern void scheduler();
+#include "print.h"
 
-// defines TaskSet
-#include "taskset.h"
-
-int main(int argc, char** argv){
+int main(){
     scheduler();
     return 0;
 }

@@ -29,7 +29,7 @@ static task_t* taskarr[] = {
 static taskset_t TaskSet = {
     .tasks = taskarr,
     .length = 2,
-    .algorithm = EDF,
+    .algorithm = RM,
     .schedule = NULL,
     .schedulable = FALSE
 };
@@ -37,9 +37,10 @@ static taskset_t TaskSet = {
 static int sched[1000];
 
 static schedule_t schedule = {
-    .schedule = sched,
+    // taken from slide 9 in FP lecture
+    .schedule = {0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, -1, -2},
     .microcycles = 0,
-    .macrocycles = 1
+    .macrocycles = 0,
 };
 
 #endif

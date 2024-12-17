@@ -46,7 +46,7 @@ scheduler_trap_handler:
 
     # load the value from mtime
     lw t0,(t0)
-    li t1,500       # change back to 100
+    li t1,50       # change back to 100
     li t2,2047
 
     # t2 = 204,700

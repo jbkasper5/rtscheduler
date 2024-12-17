@@ -28,19 +28,15 @@ debug: $(DEBUG_BIN_DIR) $(DTARGET)
 
 # @ is the rule, ^ is the prereqs
 $(TARGET): $(OBJS)
-	@echo "Hello1"
 	$(LINKER) -o $@ $^ -T $(LINKERFILE) $(LFLAGS)
 
 $(BIN_DIR)/%.o: */$(SRC_DIR)/%.c
-	@echo "Hello2"
 	$(CC) -c $< -o $@ $(RISCVFLAGS) -I $(INCLUDE_PATH) -w
 
 $(BIN_DIR)/%.o: */$(SRC_DIR)/%.s
-	@echo "Hello3"
 	$(CC) $(RISCVFLAGS) -o $@ -c $< -I $(INCLUDE_PATH)
 
 $(BIN_DIR):
-	@echo "Hello4"
 	mkdir -p $@
 
 .PHONY: clean
@@ -57,3 +53,18 @@ run: all
 
 run_wait: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET) -S -s 
+
+
+# bin/blmain.o(.text)
+# bin/ipc.o(.text)
+# bin/print.o(.text)
+# bin/spinlock.o(.text)
+# bin/traphandler.o(.text)
+# bin/boot.o(.text)
+# bin/main.o(.text)
+# bin/schedulebuilders.o(.text)
+# bin/taskmanager.o(.text)
+# bin/concurrency.o(.text)
+# bin/mstime.o(.text)
+# bin/scheduler.o(.text)
+# bin/time.o(.text)

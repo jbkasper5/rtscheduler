@@ -25,6 +25,9 @@ _start:
     la t0, trap_handler                 # set up the machine trap handler jump vector
     csrw mtvec, t0                      # set up jump vector
 
+    # build the schedule so all cores can see it
+    # jal build_schedule
+
     csrr t0, mhartid                    # get the core ID using atomic read instruction
     li t1, 0
     bne t0, t1, _skip_scheduler_proc     # if this is not core 0, skip over scheduler initialization
@@ -59,9 +62,9 @@ taskman_proc_init:
 
     # enable software interrupts for only the task manager process
     li t0, 0xf
-    csrs mie, t0
+    csrs mie, t0                             
 
-    jal taskmain                        # jump to task manager's main function
+    jal tm_main                        # jump to task manager's main function
     ld ra,0(sp)
     add sp,sp,8
     ret

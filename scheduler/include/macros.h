@@ -13,4 +13,9 @@
 #define TRUE 1
 #define FALSE 0
 
+#define NULL 0
+
+// each time unit is 500 ms (half a second) in this system
+#define TIME_UNIT 1000
+
 #endif
