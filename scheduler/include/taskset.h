@@ -34,4 +34,12 @@ static taskset_t TaskSet = {
     .schedulable = FALSE
 };
 
+static int sched[1000];
+
+static schedule_t schedule = {
+    .schedule = sched,
+    .microcycles = 0,
+    .macrocycles = 1
+};
+
 #endif

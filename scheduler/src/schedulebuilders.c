@@ -100,9 +100,8 @@ schedule_t* edf_scheduler(taskset_t* taskset) {
     int scheduleSize = minPeriod[0]->period;
 
     // initialize schedule to -1 at all time t
-    int sched[scheduleSize];
     for (int i = 0; i < scheduleSize; i++) {
-        sched[i] = -1;
+        schedule.schedule[i] = -1;
     }
 
     // fill in which task is executing at which t based on their period & deadline
@@ -121,17 +120,14 @@ schedule_t* edf_scheduler(taskset_t* taskset) {
             continue;
         }
 
-        sched[t] = indexes[taskI];
+        schedule.schedule[t] = indexes[taskI];
     }
 
     // for (int i = 0; i < scheduleSize; i++) {
-    //     printf("%d ", sched[i]);
+    //     printf("%d ", schedule.sched[i]);
     // }
     // printf("\n");
-
-    schedule_t* schedule = {sched};
-
-    return schedule;
+    return NULL;
 }
 
 schedule_t* rm_scheduler(taskset_t* taskset) {
@@ -148,9 +144,8 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
     // assuming execution time < period
     // and no preemption
     // initialize schedule to -1 at all time t
-    int sched[(int)minPeriod[0]->period];
     for (int i = 0; i < minPeriod[0]->period; i++) {
-        sched[i] = -1;
+        schedule.schedule[i] = -1;
     }
 
     // fill in which task is executing at which t based on their period
@@ -165,17 +160,14 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
         }
 
         for (int j = 0; j < task->execution_time; j++) {
-            sched[t] = indexes[i];
+            schedule.schedule[t] = indexes[i];
             t++;
         }
     }
 
     // for (int i = 0; i < minPeriod[0]->period; i++) {
-    //     printf("%d ", sched[i]);
+    //     printf("%d ", schedule.schedule[i]);
     // }
     // printf("\n");
-
-    schedule_t* schedule = {sched};
-
-    return schedule;
+    return NULL;
 }

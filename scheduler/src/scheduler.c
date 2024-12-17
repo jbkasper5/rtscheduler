@@ -1,8 +1,8 @@
 #include "scheduler.h"
 
-void scheduler(void){
+void scheduler(){
     taskset_t* set = &TaskSet;
-    switch(set->algorithm){
+    switch(TaskSet.algorithm){
         case EDF:
             edf_scheduler(set); break;
         case RM:
@@ -10,7 +10,5 @@ void scheduler(void){
         default:
             break;
     }
-    // trigger task manager interrupt
-
     return;
 }

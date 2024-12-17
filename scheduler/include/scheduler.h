@@ -6,6 +6,6 @@
 #include "taskset.h"
 #include "schedulebuilders.h"
 
-void scheduler(void);
+void scheduler();
 
 #endif
