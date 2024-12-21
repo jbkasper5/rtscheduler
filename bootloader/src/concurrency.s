@@ -1,7 +1,3 @@
-.section .data
-.align 3
-printlock: .dword 1
-
 .section .text
 .globl wait_for_interrupt
 

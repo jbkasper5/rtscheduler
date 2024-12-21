@@ -1,4 +1,5 @@
 #include "schedulebuilders.h"
+#include "print.h"
 
 // TODO: inefficient
 float nth_pow(float x, int n) {
@@ -49,17 +50,29 @@ int edf_utilization_bound(taskset_t* taskset) {
 }
 
 void min_period(taskset_t* taskset, task_t* out[], int* indexes) {
+    // iterate over all tasks in the taskset
     for (int i = 0; i < taskset->length; i++) {
+
+        // get the minimum task, equal to the current task
         task_t* min = taskset->tasks[i];
+
+        // save the minimum index
         int index = i;
+
+        // iterate over the remaining tasks in the taskset
         for (int j = i + 1; j < taskset->length; j++) {
+
+            // if the task has a period less than that of our minimum, we swap
             if (taskset->tasks[j]->period < min->period) {
                 min = taskset->tasks[j];
                 index = j;
             }
         }
+
+        // mark index i as task with the minimum period from the remaining tasks
         out[i] = min;
 
+        // if indexes isn't null, set the current task index to index
         if (indexes != NULL) {
             indexes[i] = index;
         }
@@ -100,6 +113,7 @@ schedule_t* edf_scheduler(taskset_t* taskset) {
     int scheduleSize = minPeriod[0]->period;
 
     // initialize schedule to -1 at all time t
+    int sched[1000];
     for (int i = 0; i < scheduleSize; i++) {
         sched[i] = -1;
     }
@@ -137,6 +151,7 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
     if (!rm_least_upper_bound(taskset)) {
         return NULL;
     }
+    prints("Passed test.\n");
     taskset->schedulable = TRUE;
 
     // Sort tasks by smallest -> largest period

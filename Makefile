@@ -43,10 +43,11 @@ $(BIN_DIR):
 clean:
 	$(RM) -rf $(TARGET)
 	$(RM) -rf $(BIN_DIR)
+	$(RM) -rf objdump.s
 
 .PHONY: asm
 asm: all
-	riscv64-unknown-elf-objdump -d $(TARGET) > asm.s
+	riscv64-unknown-elf-objdump -d $(TARGET) > objdump.s
 
 run: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET)

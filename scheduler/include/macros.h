@@ -10,6 +10,9 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
+#define UNSCALED_POINTER_ADD(x, y) ((void*)((char*)x + y))
+#define UNSCALED_POINTER_SUB(x, y) ((void*)((char*)x - y))
+
 #define TRUE 1
 #define FALSE 0
 

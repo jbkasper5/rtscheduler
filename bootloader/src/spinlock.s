@@ -7,6 +7,7 @@ printlock: .dword 1
 # make visible to c files and other assembly files
 .globl lock_acquire
 .globl lock_release
+.globl printlock
 
 lock_acquire:
     addi sp,sp,-24
@@ -20,6 +21,7 @@ _lock_acquire_loop:
     amoswap.w s1, t0, (s0)              # atomic swap with the spinlock, place in zero and read to s1
 
     beqz s1, _lock_acquire_loop         # if the value returned from the swap was 0, it was already locked
+
     ld ra,0(sp)
     ld s0,8(sp)
     ld s1,16(sp)
