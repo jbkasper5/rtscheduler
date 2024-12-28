@@ -1,6 +1,18 @@
+.section .rodata
+tmth:
+   .string "Task manager trap handler\n"
+sth:
+   .string "Scheduler trap handler\n"
+
 .section .data
     .fill 1024, 4, 0
-mstack:
+mstackhart0:
+.section .data
+    .fill 1024, 4, 0
+mstackhart1:
+
+.extern TRAP_STACKS_BASE
+.extern TRAP_STACK_SIZE
 
 .section .text
 .globl trap_handler
@@ -11,16 +23,32 @@ trap_handler:
     # to get the trap index
 
     csrw mscratch, sp               # store user stack into machine scratch
-    la  sp, mstack                  # load the machine stack into sp
+
+    csrr t0, mhartid                # load core ID into s2
+    li t1, 0
+    beq t0, t1, load_scheduler_mstack
+    li t1, 1
+    beq t0, t1, load_taskman_mstack
+    mret
+
+load_scheduler_mstack:
+    la  sp, mstackhart0                  # load the machine stack into sp
+    j merge
+
+load_taskman_mstack:
+    la sp, mstackhart1
+    j merge
+
+merge:
     addi sp, sp, -24                # normal stack shifting operations, but on machine stack this time
     sd  s0, 0(sp)
     sd  s1, 8(sp)
     sd  s2, 16(sp)
 
     # TODO: Understand this
-    csrr s0, mepc                   # read mepc into s0
-    addi s0, s0, 4                  # increment mepc by 4
-    csrw mepc, s0                   # write back to mepc 
+    csrr s0, mepc                   # read mepc into s0, where mepc is our return address to user mode
+    # addi s0, s0, 4                  # increment mepc by 4
+    # csrw mepc, s0                   # write back to mepc 
 
     csrr s2, mhartid                # load core ID into s2
 
@@ -61,6 +89,13 @@ scheduler_trap_handler:
     # store our maths into the mtimecmp address
     sw t0,(t1) 
 
+    la a0, sth
+    jal prints
+    csrr a0, mcause                   # read mcause into a0
+    jal printl
+    csrr a0, mepc
+    jal printl
+
     j trap_handler_end
 
 # set up the trap handler for the taskmanager
@@ -68,8 +103,15 @@ scheduler_trap_handler:
 taskmanager_trap_handler:
 
     # acknowledge the interrupt and set the bit back to 0
-    li t0, 0x02000004         # address of core 1's msip CSR
-    li t1, 0
-    sw t1, (t0)
+    li s0, 0x02000004         # address of core 1's msip CSR
+    sd zero, (s0)
+
+    la a0, tmth
+    jal prints
+    csrr a0, mcause
+    jal printl
+    csrr a0, mepc
+    jal printl
+
     j trap_handler_end
 

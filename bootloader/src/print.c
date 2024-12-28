@@ -39,14 +39,14 @@ void my_getchar(char* c) {
 }
 
 void prints(char* msg){
-    lock_acquire();
+    lock_acquire(&printlock);
     *(uart_addr + 2) |= 1;
     *(uart_addr + 3) |= 1;
     while(*msg != '\0'){
         my_putchar(*msg);
         msg++;
     }
-    lock_release();
+    lock_release(&printlock);
     return;
 }
 

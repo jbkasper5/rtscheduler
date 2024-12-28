@@ -2,6 +2,10 @@
 .section .data
     .fill 2048, 4, 0
 stack:
+heap:
+    # create a 32 KiB heap
+    .fill 8192, 4, 0
+.globl heap
 
 .align 3
 printlock: .dword 1

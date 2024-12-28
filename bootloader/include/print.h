@@ -17,8 +17,9 @@ void printl(long msg);
 void printf(float f);
 void printaddr(long msg);
 
-extern void lock_acquire();
-extern void lock_release();
+extern long printlock;
+extern void lock_acquire(void* lock);
+extern void lock_release(void* lock);
 
 #define INT_SIZE    (sizeof(int) * 8)
 #define FLOAT_SIZE  (sizeof(float) * 8)

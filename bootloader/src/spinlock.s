@@ -2,19 +2,22 @@
 .align 3                                # must be aligned for amoswap.w to work
 printlock: .dword 1
 
+.align 3
+mlock: .dword 1
 .section .text
 
 # make visible to c files and other assembly files
 .globl lock_acquire
 .globl lock_release
 .globl printlock
+.globl mlock
 
 lock_acquire:
     addi sp,sp,-24
     sd ra,0(sp)
     sd s0, 8(sp)
     sd s1, 16(sp)
-    la s0, printlock                    # load address of the spinlock
+    move s0, a0                         # copy the address of the spinlock (parameter) into a0
 
 _lock_acquire_loop:
     li t0, 0                            # 0 signifies the spinlock is locked
@@ -29,13 +32,15 @@ _lock_acquire_loop:
     ret
 
 lock_release:
-    add sp,sp,-8
+    add sp,sp,-16
     sd ra,0(sp)
+    sd s0, 8(sp)
 
-    la t0, printlock                    # load address of spinlock
+    move s0, a0                         # load address of parameter spinlock
     li t1, 1                            # load immediate 1, for unlocked
-    amoswap.w t2, t1, (t0)              # atomically swap a 1 into the spinlock address
+    amoswap.w t2, t1, (s0)              # atomically swap a 1 into the spinlock address
 
     ld ra,0(sp)
-    add sp,sp,8
+    ld s0, 8(sp)
+    add sp,sp,16
     ret

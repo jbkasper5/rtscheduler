@@ -1,10 +1,10 @@
 #include "scheduler.h"
 #include "print.h"
 #include "time.h"
+#include "malloc.h"
 
 extern void wait_for_interrupt();
 extern void ping_taskmanager();
-extern long printlock;
 
 void build_schedule(void){
     taskset_t* set = &TaskSet;
@@ -24,24 +24,15 @@ void build_schedule(void){
 }
 
 void scheduler(){
-    int local_time = mstime();
-    prints("Local time: ");
-    printi(local_time);
-    int previous_time = local_time;
-    prints("previous_time: ");
-    printi(previous_time);
-    while(1){
+    int num = 0;
+    // ping_taskmanager();
+    while(TRUE){
+        // ping_taskmanager();
+        prints("Iteration ");
+        printi(num);
         wait_for_interrupt();
-        local_time = mstime();
-        prints("Local time: ");
-        printl(local_time);
-        prints("Previous time: ");
-        printl(previous_time);
-        if(local_time - previous_time > TIME_UNIT){
-            prints("Pinging taskmanager...\n");
-            ping_taskmanager();
-            previous_time = local_time;
-        }
+        prints("Scheduler returned from WFI.\n");
+        ping_taskmanager();
+        num++;
     }
-    return;
 }

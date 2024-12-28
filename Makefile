@@ -44,6 +44,7 @@ clean:
 	$(RM) -rf $(TARGET)
 	$(RM) -rf $(BIN_DIR)
 	$(RM) -rf objdump.s
+	$(RM) -rf *.txt
 
 .PHONY: asm
 asm: all

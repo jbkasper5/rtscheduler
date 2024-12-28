@@ -13,6 +13,8 @@
 #define UNSCALED_POINTER_ADD(x, y) ((void*)((char*)x + y))
 #define UNSCALED_POINTER_SUB(x, y) ((void*)((char*)x - y))
 
+#define ABS(x) ((x < 0) ? (-x) : (x))
+
 #define TRUE 1
 #define FALSE 0
 
