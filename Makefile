@@ -44,6 +44,7 @@ clean:
 	$(RM) -rf $(TARGET)
 	$(RM) -rf $(BIN_DIR)
 	$(RM) -rf objdump.s
+	$(RM) -rf *.txt
 
 .PHONY: asm
 asm: all
@@ -51,6 +52,9 @@ asm: all
 
 run: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET)
+
+elf: all
+	riscv64-unknown-elf-readelf -a $(TARGET) > elf.txt
 
 run_wait: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET) -S -s 

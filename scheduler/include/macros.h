@@ -13,10 +13,14 @@
 #define UNSCALED_POINTER_ADD(x, y) ((void*)((char*)x + y))
 #define UNSCALED_POINTER_SUB(x, y) ((void*)((char*)x - y))
 
+#define ABS(x) ((x < 0) ? (-x) : (x))
+
 #define TRUE 1
 #define FALSE 0
-
 #define NULL 0
+
+#define WFI()       __asm__("wfi\n\t")
+#define PRINT_SP()  __asm__("mv a0, sp\n\t" "jal printl\n\t")
 
 // each time unit is 500 ms (half a second) in this system
 #define TIME_UNIT 1000

@@ -4,7 +4,7 @@
 void taskmain(){
     while(1){
         prints("Hello from taskmain!\n");
-        wait_for_interrupt();
+        WFI();
         prints("Found interrupt!\n");
     }
     return;

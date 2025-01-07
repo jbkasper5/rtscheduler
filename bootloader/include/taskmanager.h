@@ -2,5 +2,5 @@
 #define __TASKMANAGER_H__
 
 #include "print.h"
-extern void wait_for_interrupt();
+#include "macros.h"
 #endif
