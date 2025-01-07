@@ -25,7 +25,7 @@ extern long mlock;
 extern long heap;
 static void* heap_start = &heap;
 static unsigned long heap_size = 0;
-static block_t* tail;
+static block_t* tail = NULL;
 
 // max heap size is 32 KiB, as defined in the bootloader
 #define MAX_HEAP_SIZE 32768

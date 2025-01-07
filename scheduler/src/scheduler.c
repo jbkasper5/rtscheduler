@@ -23,11 +23,13 @@ void build_schedule(void){
 }
 
 void scheduler(){
-    int num = 0;
+    int* num = (int*)malloc(sizeof(int));
+    *num = 0;
     while(TRUE){
         WFI();
         ping_taskmanager();
         prints("Clock interrupt number ");
-        printi(++num);
+        printi((*num)++);
     }
+    free(num);
 }
