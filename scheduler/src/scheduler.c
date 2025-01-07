@@ -3,7 +3,6 @@
 #include "time.h"
 #include "malloc.h"
 
-extern void wait_for_interrupt();
 extern void ping_taskmanager();
 
 void build_schedule(void){
@@ -25,14 +24,10 @@ void build_schedule(void){
 
 void scheduler(){
     int num = 0;
-    // ping_taskmanager();
     while(TRUE){
-        // ping_taskmanager();
-        prints("Iteration ");
-        printi(num);
-        wait_for_interrupt();
-        prints("Scheduler returned from WFI.\n");
+        WFI();
         ping_taskmanager();
-        num++;
+        prints("Clock interrupt number ");
+        printi(++num);
     }
 }

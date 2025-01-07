@@ -1,7 +1,9 @@
 # create an 8KiB region of memory, initialized to zero
 .section .data
     .fill 2048, 4, 0
-stack:
+hart0stack:
+    .fill 2048, 4, 0
+hart1stack:
 heap:
     # create a 32 KiB heap
     .fill 8192, 4, 0
@@ -14,8 +16,6 @@ printlock: .dword 1
 .globl _start
 
 _start:
-    la sp, stack                        # set sp equal to the stack pointer
-
     # 11 leading zeroes, then 11 -> 0001 1000 0000 0000
     # two ones set both MPP bits to 1
     li      t0, 0x1800                  # address of MIE within mstatus
@@ -47,7 +47,8 @@ _skip_scheduler_proc:
 
 
 scheduler_proc_init:
-    add sp,sp,-8
+    la sp, hart0stack                        # set sp equal to the stack pointer
+    addi sp,sp,-8
     sd ra,0(sp)
 
     # enable timer interrupts only for the scheduling process
@@ -56,12 +57,13 @@ scheduler_proc_init:
 
     jal main                            # jump to main function
     ld ra,0(sp)
-    add sp,sp,8
+    addi sp,sp,8
     ret
 
 
 taskman_proc_init:
-    add sp,sp,-8
+    la sp, hart1stack                        # set sp equal to the stack pointer
+    addi sp,sp,-8
     sd ra,0(sp)
 
     # enable software interrupts for only the task manager process
@@ -70,7 +72,7 @@ taskman_proc_init:
 
     jal tm_main                        # jump to task manager's main function
     ld ra,0(sp)
-    add sp,sp,8
+    addi sp,sp,8
     ret
 
 

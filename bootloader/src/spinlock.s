@@ -1,7 +1,6 @@
 .section .data
 .align 3                                # must be aligned for amoswap.w to work
 printlock: .dword 1
-
 .align 3
 mlock: .dword 1
 .section .text

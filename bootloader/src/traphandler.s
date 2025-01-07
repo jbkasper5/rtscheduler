@@ -1,117 +1,165 @@
 .section .rodata
-tmth:
-   .string "Task manager trap handler\n"
-sth:
-   .string "Scheduler trap handler\n"
+th:
+   .string "Trap handler\n"
 
+# define the 4-core trap stacks
+# each one is 4KiB
 .section .data
     .fill 1024, 4, 0
 mstackhart0:
-.section .data
     .fill 1024, 4, 0
 mstackhart1:
-
-.extern TRAP_STACKS_BASE
-.extern TRAP_STACK_SIZE
+    .fill 1024, 4, 0
+mstackhart2:
+    .fill 1024, 4, 0
+mstackhart3:
 
 .section .text
 .globl trap_handler
+.globl taskmanager_trap_handler
+.globl scheduler_trap_handler
 
+.altmacro
+.macro save_gp i
+    addi sp, sp, -8             # make space on stack
+  	sd	x\i, 0(sp)              # store register x_i
+.endm
+
+.macro load_gp i  
+ 	ld	x\i, 0(sp)              # load value on stack
+    addi sp, sp, 8              # shrink stack
+.endm
 
 trap_handler: 
-    # since this is a vectored trap handler, we need to multiply the cause by 4
-    # to get the trap index
+    # store the current t0 and t1 into scratch
+    csrw mscratch, t0
 
-    csrw mscratch, sp               # store user stack into machine scratch
+    beq zero, t0, hart0_mstack_init
 
-    csrr t0, mhartid                # load core ID into s2
-    li t1, 0
-    beq t0, t1, load_scheduler_mstack
-    li t1, 1
-    beq t0, t1, load_taskman_mstack
+    addi t0, t0, -1
+
+    beq zero, t0, hart1_mstack_init
+
+    addi t0, t0, -1
+
+    beq zero, t0, hart2_mstack_init
+
+    addi t0, t0, -1
+
+    beq zero, t0, hart3_mstack_init
+
     mret
 
-load_scheduler_mstack:
-    la  sp, mstackhart0                  # load the machine stack into sp
-    j merge
+hart0_mstack_init:
+    la t0, mstackhart0
+    j trap_handler_merge
 
-load_taskman_mstack:
-    la sp, mstackhart1
-    j merge
+hart1_mstack_init:
+    la t0, mstackhart1
+    j trap_handler_merge
 
-merge:
-    addi sp, sp, -24                # normal stack shifting operations, but on machine stack this time
-    sd  s0, 0(sp)
-    sd  s1, 8(sp)
-    sd  s2, 16(sp)
+hart2_mstack_init:
+    la t0, mstackhart2
+    j trap_handler_merge
 
-    # TODO: Understand this
-    csrr s0, mepc                   # read mepc into s0, where mepc is our return address to user mode
-    # addi s0, s0, 4                  # increment mepc by 4
-    # csrw mepc, s0                   # write back to mepc 
+hart3_mstack_init:
+    la t0, mstackhart3
+    j trap_handler_merge
 
-    csrr s2, mhartid                # load core ID into s2
+# jump here once the stack has been set up
+trap_handler_merge:
+    # make room to push user-mode sp onto machine stack
+    addi t0, t0, -8
 
-    li s0, 0
-    beq s0, s2, scheduler_trap_handler  # set up trap handler for the scheduler - timer interrupt
-    li s0, 1
-    beq s0, s2, taskmanager_trap_handler    # set up trap handler for taskmanager - swi
+    # store user stack address onto machine stack
+    sd sp, 0(t0)
 
-trap_handler_end:
-    ld  s0, 0(sp)
-    ld  s1, 8(sp)
-    ld  s2, 16(sp)
-    addi sp, sp, 24
-    csrr sp, mscratch               # load the current stack back from machine scratch
-    mret                            # return to user space
+    # move machine stack into sp
+    mv sp, t0
+
+    # read t0 back from scratch memory
+    csrr t0, mscratch
+
+    # save all registers into the trap stack
+    .set 	i, 1
+    .rept	31
+        save_gp	%i
+        .set	i, i+1
+    .endr
+
+    # load hart number, cause, and mepc into parameter registers
+    csrr a0, mhartid
+    csrr a1, mcause
+    csrr a2, mepc
+
+    # call the c function for the trap handler
+    call traphandler
+
+    # write return value back to mepc
+    csrw	mepc, a0
+
+    # restore all registers
+    .set 	i, 31
+    .rept	31
+        load_gp	%i
+        .set	i, i-1
+    .endr
+
+    # pop the user-mode stack off the trap stack
+    ld sp, 0(sp)
+
+    # return to user space via the address from mepc
+    mret
 
 # set up the trap handler for the scheduler
 # should only be on a clock interrupt
 scheduler_trap_handler:
+    addi sp, sp, -32
+    sd s0, 24(sp)
+    sd s1, 16(sp)
+    sd s2, 8(sp)
+    sd ra, 0(sp)
 
     # load the mtime register address
-    li t0,0x200bff8
+    li s0,0x200bff8
 
     # load the value from mtime
-    lw t0,(t0)
-    li t1,50       # change back to 100
-    li t2,2047
+    lw s0,(s0)
+    li s1,50       # change back to 100
+    li s2,2047
 
     # t2 = 204,700
-    mul t2,t2,t1
+    mul s2,s2,s1
 
     # increment the value of mtime by t2
-    add t0,t0,t2
+    add s0,s0,s2
 
     # load the mtimecmp address for core 0
-    li t1,0x2004000
+    li s1,0x2004000
 
     # store our maths into the mtimecmp address
-    sw t0,(t1) 
+    sw s0,(s1) 
 
-    la a0, sth
-    jal prints
-    csrr a0, mcause                   # read mcause into a0
-    jal printl
-    csrr a0, mepc
-    jal printl
-
-    j trap_handler_end
+    ld s0, 24(sp)
+    ld s1, 16(sp)
+    ld s2, 8(sp)
+    ld ra, 0(sp)
+    addi sp, sp, 32
+    ret
 
 # set up the trap handler for the taskmanager
 # should be a software interrupt triggered by the scheduler
 taskmanager_trap_handler:
+    addi sp, sp, -16
+    sd s0, 8(sp)
+    sd ra, 0(sp)
 
     # acknowledge the interrupt and set the bit back to 0
     li s0, 0x02000004         # address of core 1's msip CSR
     sd zero, (s0)
 
-    la a0, tmth
-    jal prints
-    csrr a0, mcause
-    jal printl
-    csrr a0, mepc
-    jal printl
-
-    j trap_handler_end
+    ld s0, 8(sp)
+    ld ra, 0(sp)
+    addi sp, sp, 16
+    ret
 

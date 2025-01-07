@@ -17,8 +17,10 @@
 
 #define TRUE 1
 #define FALSE 0
-
 #define NULL 0
+
+#define WFI()       __asm__("wfi\n\t")
+#define PRINT_SP()  __asm__("mv a0, sp\n\t" "jal printl\n\t")
 
 // each time unit is 500 ms (half a second) in this system
 #define TIME_UNIT 1000

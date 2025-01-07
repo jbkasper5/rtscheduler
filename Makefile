@@ -53,6 +53,9 @@ asm: all
 run: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET)
 
+elf: all
+	riscv64-unknown-elf-readelf -a $(TARGET) > elf.txt
+
 run_wait: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET) -S -s 
 

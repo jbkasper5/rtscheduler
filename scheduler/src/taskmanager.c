@@ -3,14 +3,17 @@
 #include "time.h"
 #include "malloc.h";
 
+
 void task(unsigned long execution_time);
 
+
 void tm_main(void){
-    prints("In TM\n");
+    long val = 0;
     while(1){
-        prints("TM going to sleep...\n");
-        wait_for_interrupt();
-        prints("TM woke up\n");
+        WFI();
+        ++val;
+        prints("Task checkup number ");
+        printl(val);
     }
     return;
 }
@@ -18,5 +21,5 @@ void tm_main(void){
 
 // function to spin a task for it's execution time
 void task(unsigned long execution_time){
-    wait_for_interrupt();
+    WFI();
 }
