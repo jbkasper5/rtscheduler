@@ -1,35 +1,29 @@
 #include "scheduler.h"
-#include "print.h"
-#include "time.h"
-#include "malloc.h"
 
-extern void ping_taskmanager();
-
-void build_schedule(void){
+schedule_t* build_schedule(void){
     taskset_t* set = &TaskSet;
     switch(set->algorithm){
         case EDF:
             prints("Building EDF schedule.\n");
-            edf_scheduler(set); break;
+            return edf_scheduler(set);
         case RM:
             prints("Building RM schedule.\n");
-            rm_scheduler(set); break;
+            return rm_scheduler(set);
         default:
-            break;
+            return NULL;
     }
-    // trigger task manager interrupt
-
-    return;
 }
 
 void scheduler(){
-    int* num = (int*)malloc(sizeof(int));
-    *num = 0;
-    while(TRUE){
+    schedule_t* sched = build_schedule();
+    int curr_timeunit = 0;
+    prints("Beginning scheduling...\n");
+    while(1){
         WFI();
-        ping_taskmanager();
-        prints("Clock interrupt number ");
-        printi((*num)++);
+        prints("Sending ping...\n");
+        // ping_taskmanager();
+
+        // increment the current timeunit to align with the schedule
+        curr_timeunit++;
     }
-    free(num);
 }

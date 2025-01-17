@@ -10,12 +10,7 @@ void task(unsigned long execution_time);
 void tm_main(void){
     long* val;
     while(1){
-        WFI();
-        val = (long*) malloc(sizeof(long));
-        prints("Task checkup number ");
-        printl(*val);
-        (*val)++;
-        free(val);
+        task(100);
     }
     return;
 }

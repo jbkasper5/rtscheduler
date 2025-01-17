@@ -99,97 +99,17 @@ void min_deadline(taskset_t* taskset, task_t* out[], int* indexes) {
 }
 
 schedule_t* edf_scheduler(taskset_t* taskset) {
-    if (!edf_utilization_bound(taskset)) {
-        return NULL;
-    }
-    taskset->schedulable = TRUE;
+    schedule_t* schedule = (schedule_t*) malloc(sizeof(schedule_t));
+    pq_t* pq = pq_init(taskset->length);
 
-    // Sort tasks by smallest -> largest deadline
-    int indexes[taskset->length];
-    task_t* minDeadline[taskset->length];
-    min_deadline(taskset, minDeadline, indexes);
-    task_t* minPeriod[taskset->length];
-    min_period(taskset, minPeriod, NULL);
-    int scheduleSize = minPeriod[0]->period;
-
-    // initialize schedule to -1 at all time t
-    int sched[1000];
-    for (int i = 0; i < scheduleSize; i++) {
-        sched[i] = -1;
-    }
-
-    // fill in which task is executing at which t based on their period & deadline
-    // assuming each index in the schedule is 1 time unit away
-    int taskI = 0;
-    for (int t = 0; t < scheduleSize; t++) {
-        task_t* task = minDeadline[taskI];
-        if (t >= task->offset + task->execution_time) {
-            if (taskI + 1 >= taskset->length) {
-                break;
-            }
-            task = minDeadline[++taskI];
-        }
-
-        if (t < task->offset) {
-            continue;
-        }
-
-        sched[t] = indexes[taskI];
-    }
-
-    // for (int i = 0; i < scheduleSize; i++) {
-    //     printf("%d ", sched[i]);
-    // }
-    // printf("\n");
-
-    schedule.schedule = sched;
-
-    return &schedule;
+    pq_destroy(pq);
+    return schedule;
 }
 
 schedule_t* rm_scheduler(taskset_t* taskset) {
-    if (!rm_least_upper_bound(taskset)) {
-        return NULL;
-    }
-    prints("Passed test.\n");
-    taskset->schedulable = TRUE;
-
-    // Sort tasks by smallest -> largest period
-    int indexes[taskset->length];
-    task_t* minPeriod[taskset->length];
-    min_period(taskset, minPeriod, indexes);
-
-    // assuming execution time < period
-    // and no preemption
-    // initialize schedule to -1 at all time t
-    int sched[(int)minPeriod[0]->period];
-    for (int i = 0; i < minPeriod[0]->period; i++) {
-        sched[i] = -1;
-    }
-
-    // fill in which task is executing at which t based on their period
-    // assuming each index in the schedule is 1 time unit away
-    int t = 0;
-    for (int i = 0; i < taskset->length; i++) {
-        task_t* task = minPeriod[i];
-
-        // could fit other tasks based on their offset here
-        while (t < (int)(task->offset)) {
-            t++;
-        }
-
-        for (int j = 0; j < task->execution_time; j++) {
-            sched[t] = indexes[i];
-            t++;
-        }
-    }
-
-    // for (int i = 0; i < minPeriod[0]->period; i++) {
-    //     printf("%d ", sched[i]);
-    // }
-    // printf("\n");
-
-    schedule.schedule = sched;
-
-    return &schedule;
+    schedule_t* schedule = (schedule_t*) malloc(sizeof(schedule_t));
+    pq_t* pq = pq_init(taskset->length);
+    
+    pq_destroy(pq);
+    return schedule;
 }
