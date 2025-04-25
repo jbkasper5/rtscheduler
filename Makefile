@@ -43,6 +43,7 @@ $(BIN_DIR):
 .PHONY: clean
 clean:
 	$(RM) -rf $(TARGET)
+	$(RM) -rf **/$(BIN_DIR)
 	$(RM) -rf $(BIN_DIR)
 	$(RM) -rf objdump.s
 	$(RM) -rf *.txt
@@ -59,18 +60,3 @@ elf: all
 
 run_wait: all
 	qemu-system-riscv64 -machine sifive_u -serial stdio -bios $(TARGET) -S -s 
-
-
-# bin/blmain.o(.text)
-# bin/ipc.o(.text)
-# bin/print.o(.text)
-# bin/spinlock.o(.text)
-# bin/traphandler.o(.text)
-# bin/boot.o(.text)
-# bin/main.o(.text)
-# bin/schedulebuilders.o(.text)
-# bin/taskmanager.o(.text)
-# bin/concurrency.o(.text)
-# bin/mstime.o(.text)
-# bin/scheduler.o(.text)
-# bin/time.o(.text)
