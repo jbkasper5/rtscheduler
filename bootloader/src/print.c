@@ -63,18 +63,18 @@ void printi(int msg){
     return;
 }
 
-void printf(float f){
-    int strsize = FLOAT_SIZE / 4;
-    char str[FLOAT_SIZE / 4 + 4] = "0x";
-    str[strsize + 3] = '\0';
-    str[strsize + 2] = '\n';
-    int msg = *(int*)&f;
-    for(int i = 0; i < strsize; ++i){
-        str[strsize + 1 - i] = nibble_to_char(msg & 0xF);
-        msg >>= 4;
-    }
-    prints(str);
-}
+// void printf(float f){
+//     int strsize = FLOAT_SIZE / 4;
+//     char str[FLOAT_SIZE / 4 + 4] = "0x";
+//     str[strsize + 3] = '\0';
+//     str[strsize + 2] = '\n';
+//     int msg = *(int*)&f;
+//     for(int i = 0; i < strsize; ++i){
+//         str[strsize + 1 - i] = nibble_to_char(msg & 0xF);
+//         msg >>= 4;
+//     }
+//     prints(str);
+// }
 
 void printl(long msg){
     int strsize = LONG_SIZE / 4;

@@ -16,13 +16,13 @@ enum Scheduler{
 };
 
 typedef struct Task_s{
-    enum Type type;                 // task type, defined above
-    float execution_time;           // execution time for the task
-    float period;                   // period/mit for the task
-    float refresh;                  // server refresh rate (if task is periodic server)
-    float deadline;                 // task deadline
-    float offset;                   // initial activation offset of the task
-    // float priority;                 // task priority (changes based on scheduling algorithm)
+    enum Type type;               // task type, defined above
+    int execution_time;           // execution time for the task
+    int period;                   // period/mit for the task
+    int refresh;                  // server refresh rate (if task is periodic server)
+    int deadline;                 // task deadline
+    int offset;                   // initial activation offset of the task
+    int remaining_time            // time left in the tasks' execution
 } task_t;
 
 typedef struct TaskSet_s{

@@ -1,5 +1,7 @@
 #include "trap.h"
 
+extern void _infinite();
+
 unsigned long traphandler(unsigned long mhartid, unsigned long mcause, unsigned long mepc){
     if(mhartid == 0){
         sched_trap(mcause, mepc);
@@ -16,6 +18,7 @@ unsigned long sched_trap(unsigned long mcause, unsigned long mepc){
         printl(mcause);
         prints("sched mepc: ");
         printl(mepc);
+        _infinite();
     }
     scheduler_trap_handler();
     return mepc;

@@ -5,10 +5,10 @@ schedule_t* build_schedule(void){
     switch(set->algorithm){
         case EDF:
             prints("Building EDF schedule.\n");
-            return edf_scheduler(set);
+            return edf_scheduler(&TaskSet);
         case RM:
             prints("Building RM schedule.\n");
-            return rm_scheduler(set);
+            return rm_scheduler(&TaskSet);
         default:
             return NULL;
     }
@@ -16,14 +16,49 @@ schedule_t* build_schedule(void){
 
 void scheduler(){
     schedule_t* sched = build_schedule();
+    if(!sched){
+        prints("ERR: Taskset not schedulable. \n");
+        return;
+    }
+
+    // will maintain the current index of the schedule
     int curr_timeunit = 0;
     prints("Beginning scheduling...\n");
+
+    // will maintain clock times to determine if timeunits have passed
+    unsigned long prev_time = mstime();
+    unsigned long sched_curr_time;
+
+    // NOP is defined in macros.h
+    unsigned int curr_running_task = IDLE;
     while(1){
         WFI();
-        prints("Sending ping...\n");
-        // ping_taskmanager();
 
-        // increment the current timeunit to align with the schedule
-        curr_timeunit++;
+        // once the scheduling process receives a timer interrupt, read the clock
+        sched_curr_time = mstime();
+
+        // determine whether or not a full timeunit has transpired
+        // if it has, we need to see if a changed must be made to the current scheduled process
+        if((sched_curr_time - prev_time) > TIME_UNIT){
+            if(curr_timeunit % sched->len == 0 && curr_timeunit){
+
+                // reset the state of the scheduler when a macrocycle completes
+                prints("Schedule macrocycle complete.\n");
+                curr_running_task = IDLE;
+                curr_timeunit = 0;
+            }
+            if(sched->schedule[curr_timeunit] != curr_running_task){
+                if(sched->schedule[curr_timeunit] == IDLE){
+                    prints("Switching to IDLE.\n");
+                }else{
+                    prints("Switching to task ");
+                    printi(sched->schedule[curr_timeunit]);
+                }
+                curr_running_task = sched->schedule[curr_timeunit];
+            }else{
+                prints("Continuing task...\n");
+            }
+            curr_timeunit++;
+        }
     }
 }

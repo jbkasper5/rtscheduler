@@ -14,7 +14,7 @@ void my_putchar(char msg);
 void prints(char* msg);
 void printi(int msg);
 void printl(long msg);
-void printf(float f);
+// void printf(float f);
 void printaddr(long msg);
 
 extern long printlock;

@@ -5,20 +5,22 @@
 
 static task_t task1 = {
     .type = periodic,
-    .execution_time = 1.0,
+    .execution_time = 1,
     .period = 5,
     .refresh = 0,
-    .deadline = 10,
-    .offset = 0
+    .deadline = 4,
+    .offset = 1,
+    .remaining_time = 1
 };
 
 static task_t task2 = {
     .type = periodic,
-    .execution_time = 2.0,
+    .execution_time = 2,
     .period = 10,
     .refresh = 0,
-    .deadline = 20,
-    .offset = 3.0
+    .deadline = 5,
+    .offset = 0,
+    .remaining_time = 2
 };
 
 static task_t* taskarr[] = {
@@ -29,7 +31,7 @@ static task_t* taskarr[] = {
 static taskset_t TaskSet = {
     .tasks = taskarr,
     .length = 2,
-    .algorithm = RM,
+    .algorithm = EDF,
     .schedule = NULL,
     .schedulable = FALSE
 };

@@ -15,8 +15,8 @@ pq_t* pq_init(unsigned int items){
         free (pq);
         return NULL;
     }
-    pq->plen = items;
-    pq->llen = 0;
+    pq->size = items;
+    pq->len = 0;
     return pq;
 }
 
@@ -26,11 +26,13 @@ void pq_destroy(pq_t* pq){
     free(pq);
 }
 
-void pq_add(pq_t* pq, int priority, int task){
+void pq_add(pq_t* pq, int priority, int remaining, int deadline, int task){
     if(!pq) return;
-    pq->arr[pq->llen].priority = priority;
-    pq->arr[pq->llen].task = task;
-    swim(pq, pq->llen++);
+    pq->arr[pq->len].priority = priority;
+    pq->arr[pq->len].task = task;
+    pq->arr[pq->len].remaining = remaining;
+    pq->arr[pq->len].deadline = deadline;
+    swim(pq, pq->len++);
 }
 
 void swap(pq_t* pq, int idx1, int idx2){
@@ -44,7 +46,7 @@ void sink(pq_t* pq, int idx){
     int lc = LEFTCHILD(idx);
     int rc = RIGHTCHILD(idx);
 
-    if(lc <= pq->llen && rc <= pq->llen){
+    if(lc <= pq->len && rc <= pq->len){
         // both children exist, figure out which to swap with 
         if(pq->arr[idx].priority < pq->arr[lc].priority || pq->arr[idx].priority < pq->arr[rc].priority){
             
@@ -55,7 +57,7 @@ void sink(pq_t* pq, int idx){
             swap(pq, idx, minIdx);
             sink(pq, minIdx);
         }
-    }else if(lc <= pq->llen){
+    }else if(lc <= pq->len){
         if(pq->arr[idx].priority < pq->arr[lc].priority){
 
             // if left child has higher priority than the parent, swap and continue to sink
@@ -76,15 +78,15 @@ void swim(pq_t* pq, int idx){
 
 // tentative done
 pqnode_t* peek(pq_t* pq){
-    if(!pq->llen) return NULL;
-    return &pq->arr[0];
+    if(!pq->len) return NULL;
+    return pq->arr;
 }
 
 int pop(pq_t* pq){
-    if(!pq->llen) return NOP;
+    if(!pq->len) return NOP;
     pqnode_t head = pq->arr[0];
-    pq->arr[0] = pq->arr[pq->llen - 1];
-    pq->llen--;
+    pq->arr[0] = pq->arr[pq->len - 1];
+    pq->len--;
     sink(pq, 0);
     return head.task;
 }

@@ -18,6 +18,7 @@ mstackhart3:
 .globl trap_handler
 .globl taskmanager_trap_handler
 .globl scheduler_trap_handler
+.globl exit
 
 .altmacro
 .macro save_gp i
@@ -163,3 +164,8 @@ taskmanager_trap_handler:
     addi sp, sp, 16
     ret
 
+
+exit:
+    li a7, 10
+    li a0, 0
+    ecall

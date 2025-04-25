@@ -25,4 +25,7 @@ In order to handle interrupts within the booting process, it's important to unde
     + Thing
 
 To see more information on the registers and their bitmaps, see [here](https://people.eecs.berkeley.edu/~krste/papers/riscv-privileged-v1.9.1.pdf) for the documentation.
-### 
+
+### RISC-V QEMU Boards
+
+[here](https://www.qemu.org/docs/master/system/target-riscv.html)

@@ -14,11 +14,12 @@ printlock: .dword 1
 
 .section .text
 .globl _start
+.globl _infinite
 
 _start:
     # 11 leading zeroes, then 11 -> 0001 1000 0000 0000
     # two ones set both MPP bits to 1
-    li      t0, 0x1800                  # address of MIE within mstatus
+    li      t0, 0x3800                  # address of MIE within mstatus
     csrc    mstatus, t0                 # enable machine-mode interrupts
 
     # binary -> 1000 0000 1010
@@ -78,4 +79,3 @@ taskman_proc_init:
 
 _infinite:    
     j _infinite                         # trap other cores
-

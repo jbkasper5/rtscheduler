@@ -3,7 +3,8 @@ BIN_DIR=bin
 BOOTCSRCS=$(shell find bootloader/$(SRC_DIR)/*.c)
 BOOTASMSRCS=$(shell find bootloader/$(SRC_DIR)/*.s)
 SCHEDCSRCS=$(shell find scheduler/$(SRC_DIR)/*.c)
-SRCS:=$(SCHEDCSRCS) $(BOOTCSRCS) $(BOOTASMSRCS)
+SCHEDASMSRCS=$(shell find scheduler/$(SRC_DIR)/*.s)
+SRCS:=$(SCHEDCSRCS) $(SCHEDASMSRCS) $(BOOTCSRCS) $(BOOTASMSRCS)
 TOBJS=$(patsubst %.c, %.o, $(SRCS))
 TOBJS:=$(patsubst %.s, %.o, $(TOBJS))
 TOBJS:=$(patsubst bootloader/$(SRC_DIR)/%, $(BIN_DIR)/%, $(TOBJS))
@@ -14,7 +15,7 @@ LINKERFILE=bootloader/linker.ld
 CC=				riscv64-unknown-elf-gcc
 LINKER=			riscv64-unknown-elf-ld
 OPT=			-O3
-RISCVFLAGS=		-mcmodel=medany -march=rv64g
+RISCVFLAGS=		-mcmodel=medany -march=rv64g -mabi=lp64
 CFLAGS=			-g -std=c11 -nostdlib -nodefaultlibs -nostartfiles $(RISCVFLAGS)
 TARGET=			exe
 LFLAGS=			 
