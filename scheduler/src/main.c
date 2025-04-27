@@ -12,13 +12,11 @@ void test(int nargs, ...){
         sum += va_arg(list, int); // Access arguments
     }
     va_end(list);
-    printi(sum);
+    printf("Sum is: %d\n", sum);
     return;
 }
 
 int main(int argc, char** argv){
-    // scheduler();
-    test(2, 2, 3);
-    test(1, 2);
+    scheduler();
     return 0;
 }

@@ -76,7 +76,6 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
         return NULL;
     }
     schedule->len = curr_lcm;
-    prints("Here\n");
 
 
     // logic to actually build the schedule
@@ -85,10 +84,8 @@ schedule_t* rm_scheduler(taskset_t* taskset) {
     int result;
     for(int i = 0; i < schedule->len; i++){
         result = schedule_task(curr_timeunit, pq, taskset, rm_priority_func);
-        prints("Current timeunit: ");
-        printi(curr_timeunit);
-        prints("Task to be scheduled: ");
-        printi(result);
+        printf("Curr timeunit: %d\n", curr_timeunit);
+        printf("Task to be scheduled: %d\n", result);
 
         // if we missed a deadline, destroy everything we malloc'd and return
         if(result == UNSCHEDULABLE){

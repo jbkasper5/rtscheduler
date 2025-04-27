@@ -38,53 +38,95 @@ void my_getchar(char* c) {
     return;
 }
 
-void prints(char* msg){
-    lock_acquire(&printlock);
+void _prints(char* msg){
     *(uart_addr + 2) |= 1;
     *(uart_addr + 3) |= 1;
     while(*msg != '\0'){
         my_putchar(*msg);
         msg++;
     }
+    return;
+}
+
+// doesn't handle negative numbers yet
+char* int_to_str(int num, char is_long){
+    char IS_NEGATIVE = FALSE;
+    if(num < 0){
+        IS_NEGATIVE = TRUE;
+        num = (~num) + 1;
+    }
+
+    unsigned long size = is_long ? sizeof(long) * 8 : sizeof(int) * 8;
+    char* str = malloc(size + 1);
+    str[size] = '\0';
+    int loc = size - 1;
+
+    if(num == 0){
+        str[loc--] = '0';
+    }
+
+    while(num){
+        char val = num % 10;
+        str[loc--] = '0' + num % 10;
+        num /= 10;
+    }
+
+    if (IS_NEGATIVE) str[loc--] = '-';
+    return (str + loc + 1);
+}
+
+void printf(char* format_str, ...){
+    lock_acquire(&printlock);
+    char* ptr = format_str;
+    int nargs = 1;
+    while(*ptr){
+        if(*ptr == '%' && *(ptr + 1) != '%' && *(ptr + 1) != '\0') nargs++;
+        ptr++;
+    }
+
+    // if no formats were specified, just print the string as normal
+    if(nargs == 1){
+        _prints(format_str);
+        lock_release(&printlock);
+        return;
+    }
+
+    va_list list;
+    va_start(list, nargs);
+
+    ptr = format_str;
+    while(*ptr){
+        if(*ptr == '%' && *(ptr + 1) != '%' && *(ptr + 1) != '\0'){
+            char* str_conversion = NULL;
+            switch (*(ptr + 1)){
+                case 'd': 
+                    str_conversion = int_to_str(va_arg(list, int), FALSE); break;
+                case 'f':
+                    // float -> die
+                    break;
+                case 's':
+                    // string
+                case 'c':
+                    // char
+                case 'x':
+                    // hex
+                case 'l':
+                    str_conversion = int_to_str(va_arg(list, int), TRUE); break;
+                default:
+                    continue;
+            }
+
+            if(str_conversion){
+                _prints(str_conversion);
+                free(str_conversion);
+            }
+            ptr++;
+        }else{
+            my_putchar(*ptr);
+        }
+        ptr++;
+    }
+    va_end(list);
     lock_release(&printlock);
-    return;
-}
-
-void printi(int msg){
-    int strsize = INT_SIZE / 4;
-    char str[INT_SIZE / 4 + 4] = "0x";
-    str[strsize + 3] = '\0';
-    str[strsize + 2] = '\n';
-    for(int i = 0; i < strsize; ++i){
-        str[strsize + 1 - i] = nibble_to_char(msg & 0xF);
-        msg >>= 4;
-    }
-    prints(str);
-    return;
-}
-
-// void printf(float f){
-//     int strsize = FLOAT_SIZE / 4;
-//     char str[FLOAT_SIZE / 4 + 4] = "0x";
-//     str[strsize + 3] = '\0';
-//     str[strsize + 2] = '\n';
-//     int msg = *(int*)&f;
-//     for(int i = 0; i < strsize; ++i){
-//         str[strsize + 1 - i] = nibble_to_char(msg & 0xF);
-//         msg >>= 4;
-//     }
-//     prints(str);
-// }
-
-void printl(long msg){
-    int strsize = LONG_SIZE / 4;
-    char str[LONG_SIZE / 4 + 4] = "0x";
-    str[strsize + 3] = '\0';
-    str[strsize + 2] = '\n';
-    for(int i = 0; i < strsize; ++i){
-        str[strsize + 1 - i] = nibble_to_char(msg & 0xF);
-        msg >>= 4;
-    }
-    prints(str);
     return;
 }

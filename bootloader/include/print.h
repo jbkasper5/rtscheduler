@@ -7,15 +7,18 @@
 static unsigned long* uart_addr = (unsigned long*)0x10010000;
 #endif
 
+#include <stdarg.h>
+#include "malloc.h"
+
 char nibble_to_char(char nibble);
 void my_getchar(char* c);
 void my_putchar(char msg);
 
-void prints(char* msg);
-void printi(int msg);
+void _prints(char* msg);
 void printl(long msg);
 // void printf(float f);
 void printaddr(long msg);
+void printf(char* format_str, ...);
 
 extern long printlock;
 extern void lock_acquire(void* lock);

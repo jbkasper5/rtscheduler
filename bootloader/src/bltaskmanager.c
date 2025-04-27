@@ -3,9 +3,9 @@
 
 void taskmain(){
     while(1){
-        prints("Hello from taskmain!\n");
+        printf("Hello from taskmain!\n");
         WFI();
-        prints("Found interrupt!\n");
+        printf("Found interrupt!\n");
     }
     return;
 }
