@@ -34,7 +34,63 @@ int rm_priority_func(task_t* task, int timeunit){
 schedule_t* edf_scheduler(taskset_t* taskset) {
     schedule_t* schedule = (schedule_t*) malloc(sizeof(schedule_t));
     pq_t* pq = pq_init(taskset->length);
+    int curr_gcd, curr_lcm;
 
+    if(taskset->length < 2){
+        // gcd, lcm is just the one task
+        curr_lcm = taskset->tasks[0]->period;
+        curr_gcd = taskset->tasks[0]->period;
+    }else{
+        // get the baseline gcd and lcm of the first tasks
+        curr_gcd = gcd(taskset->tasks[0]->period, taskset->tasks[1]->period);
+        curr_lcm = lcm(taskset->tasks[0]->period, taskset->tasks[1]->period);
+    }
+
+    int newgcd, newlcm;
+    for(int i = 0; i < taskset->length; i++){
+        task_t* taskp = taskset->tasks[i];
+
+        newgcd = gcd(curr_gcd, taskset->tasks[i]->period);
+        if(newgcd > curr_gcd) curr_gcd = newgcd;
+
+        newlcm = lcm(curr_lcm, taskset->tasks[i]->period);
+        if(newlcm < curr_lcm) curr_lcm = newlcm;
+    }
+
+    int curr_timeunit = 0;
+    schedule->macrocycles = curr_lcm;
+    schedule->microcycles = curr_gcd;
+
+    schedule->schedule = (int*)malloc(sizeof(int) * curr_lcm);
+    if(!schedule->schedule){
+        pq_destroy(pq);
+        return NULL;
+    }
+    schedule->len = curr_lcm;
+
+
+    // logic to actually build the schedule
+    // populate every index in the schedule with the task that should run
+    // -1 denotes CPU idle time
+    int result;
+    for(int i = 0; i < schedule->len; i++){
+        result = schedule_task(curr_timeunit, pq, taskset, edf_priority_func);
+        printf("Curr timeunit: %d\n", curr_timeunit);
+        printf("Task to be scheduled: %d\n", result);
+
+        // if we missed a deadline, destroy everything we malloc'd and return
+        if(result == UNSCHEDULABLE){
+            free(schedule->schedule);
+            free(schedule);
+            pq_destroy(pq);
+            return NULL;
+        }
+
+
+        schedule->schedule[curr_timeunit] = result;
+        // move onto the next time unit
+        curr_timeunit++;
+    }
     pq_destroy(pq);
     return schedule;
 }

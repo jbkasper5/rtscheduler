@@ -31,7 +31,7 @@ static task_t* taskarr[] = {
 static taskset_t TaskSet = {
     .tasks = taskarr,
     .length = 2,
-    .algorithm = RM,
+    .algorithm = EDF,
     .schedule = NULL,
     .schedulable = FALSE
 };

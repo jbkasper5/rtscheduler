@@ -16,7 +16,7 @@ schedule_t* build_schedule(void){
 
 void scheduler(){
     schedule_t* sched = build_schedule();
-    if(!sched){
+    if(!sched || !sched->schedule){
         printf("ERR: Taskset not schedulable. \n");
         return;
     }
