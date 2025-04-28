@@ -2,24 +2,9 @@
 
 char nibble_to_char(char nibble){
     switch(nibble){
-        case 0:
-            return '0';
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-            return '1' + (nibble - 1);
-        case 10:
-        case 11:
-        case 12:
-        case 13:
-        case 14:
-        case 15:
+        case 0 ... 9:
+            return '0' + nibble;
+        case 10 ... 15:
             return 'A' + (nibble - 10);
     }
 }
@@ -75,6 +60,23 @@ char* int_to_str(int num, char is_long){
     return (str + loc + 1);
 }
 
+char* to_hex_str(unsigned long num){
+    unsigned long size = sizeof(void*);
+    char* str = malloc(size + 1);
+    str[size] = '\0';
+    int loc = size - 1;
+
+    if(num == 0){
+        str[loc--] = '0';
+    }
+
+    while(num){
+        str[loc--] = nibble_to_char(num & 0xF);
+        num >>= 4;
+    }
+    return (str + loc + 1);
+}
+
 void printf(char* format_str, ...){
     lock_acquire(&printlock);
     char* ptr = format_str;
@@ -109,9 +111,9 @@ void printf(char* format_str, ...){
                 case 'c':
                     // char
                 case 'x':
-                    // hex
+                    str_conversion = to_hex_str(va_arg(list, unsigned long)); break;
                 case 'l':
-                    str_conversion = int_to_str(va_arg(list, int), TRUE); break;
+                    str_conversion = int_to_str(va_arg(list, long), TRUE); break;
                 default:
                     continue;
             }
