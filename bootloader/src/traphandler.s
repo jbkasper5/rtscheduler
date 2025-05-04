@@ -1,19 +1,3 @@
-.section .rodata
-th:
-   .string "Trap handler\n"
-
-# define the 4-core trap stacks
-# each one is 4KiB
-.section .data
-    .fill 1024, 4, 0
-mstackhart0:
-    .fill 1024, 4, 0
-mstackhart1:
-    .fill 1024, 4, 0
-mstackhart2:
-    .fill 1024, 4, 0
-mstackhart3:
-
 .section .text
 .globl trap_handler
 .globl taskmanager_trap_handler

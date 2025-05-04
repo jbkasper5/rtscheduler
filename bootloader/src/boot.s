@@ -1,22 +1,13 @@
 # create an 8KiB region of memory, initialized to zero
 .section .data
-    .fill 2048, 4, 0
-hart0stack:
-    .fill 2048, 4, 0
-hart1stack:
-heap:
-    # create a 32 KiB heap
-    .fill 8192, 4, 0
-.globl heap
-
 .align 3
 printlock: .dword 1
 
 .section .text
-.globl _start
+.globl init
 .globl _infinite
 
-_start:
+init:
     # 11 leading zeroes, then 11 -> 0001 1000 0000 0000
     # two ones set both MPP bits to 1
     li      t0, 0x3800                  # address of MIE within mstatus

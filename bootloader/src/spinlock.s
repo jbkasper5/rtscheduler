@@ -3,8 +3,8 @@
 printlock: .dword 1
 .align 3
 mlock: .dword 1
-.section .text
 
+.section .text
 # make visible to c files and other assembly files
 .globl lock_acquire
 .globl lock_release
