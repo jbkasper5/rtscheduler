@@ -4,3 +4,4 @@ dexe
 asm.s
 *.cfg
 objdump.s
+elf.txt

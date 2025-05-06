@@ -1,9 +1,9 @@
 SRC_DIR=src
 BIN_DIR=bin
-BOOTCSRCS=$(shell find bootloader/$(SRC_DIR)/*.c)
-BOOTASMSRCS=$(shell find bootloader/$(SRC_DIR)/*.s)
-SCHEDCSRCS=$(shell find scheduler/$(SRC_DIR)/*.c)
-SCHEDASMSRCS=$(shell find scheduler/$(SRC_DIR)/*.s)
+BOOTCSRCS=$(shell find bootloader/$(SRC_DIR)/*.c 2>/dev/null)
+BOOTASMSRCS=$(shell find bootloader/$(SRC_DIR)/*.s 2>/dev/null)
+SCHEDCSRCS=$(shell find scheduler/$(SRC_DIR)/*.c 2>/dev/null)
+SCHEDASMSRCS=$(shell find scheduler/$(SRC_DIR)/*.s 2>/dev/null)
 SRCS:=$(SCHEDCSRCS) $(SCHEDASMSRCS) $(BOOTCSRCS) $(BOOTASMSRCS)
 TOBJS=$(patsubst %.c, %.o, $(SRCS))
 TOBJS:=$(patsubst %.s, %.o, $(TOBJS))
