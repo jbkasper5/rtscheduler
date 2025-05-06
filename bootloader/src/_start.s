@@ -20,9 +20,18 @@ mstackhart2:
 mstackhart3:
 heap:
     .fill 8192, 4, 0
+hart0ihczone:
+    .fill 256, 4, 0
+hart1ihczone:
+    .fill 256, 4, 0
+hart2ihczone:
+    .fill 256, 4, 0
+hart3ihczone:
+    .fill 256, 4, 0
 .globl heap
 .globl hart0stack, hart1stack, hart2stack, hart3stack
 .globl mstackhart0, mstackhart1, mstackhart2, mstackhart3
+.globl hart0ihczone, hart1ihczone, hart2ihczone, hart3ihczone
 
 .section .text
 _start:

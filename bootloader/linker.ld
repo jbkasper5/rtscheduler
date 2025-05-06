@@ -1,7 +1,7 @@
 MEMORY {
   LIM (rwx) : ORIGIN = 0x80000000, LENGTH = 131072,
-  stack_and_heap (rw) : ORIGIN = 0x80020000, LENGTH = 81920
-  other_data (rw) : ORIGIN = 0x80034000, LENGTH = 65536
+  stack_and_heap (rw) : ORIGIN = 0x80020000, LENGTH = 86016
+  other_data (rw) : ORIGIN = 0x80035000, LENGTH = 65536
 }
 
 SECTIONS {
