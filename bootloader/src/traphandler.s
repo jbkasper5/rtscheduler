@@ -16,8 +16,11 @@
 .endm
 
 trap_handler: 
-    # store the current t0 and t1 into scratch
+    # store the current t0 into scratch
     csrw mscratch, t0
+
+    # read the hartid into t0
+    csrr t0, mhartid
 
     beq zero, t0, hart0_mstack_init
 

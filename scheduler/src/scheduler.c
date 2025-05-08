@@ -29,7 +29,7 @@ void scheduler(){
     unsigned long prev_time = mstime();
     unsigned long sched_curr_time;
 
-    // NOP is defined in macros.h
+    // IDLE is defined in macros.h
     unsigned int curr_running_task = IDLE;
     while(1){
         WFI();
@@ -54,6 +54,7 @@ void scheduler(){
                     printf("Switching to task %d\n", sched->schedule[curr_timeunit]);
                 }
                 curr_running_task = sched->schedule[curr_timeunit];
+                ping_taskmanager();
             }else{
                 printf("Continuing task...\n");
             }

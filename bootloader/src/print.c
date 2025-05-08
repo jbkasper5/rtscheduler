@@ -9,25 +9,11 @@ char nibble_to_char(char nibble){
     }
 }
 
-void my_putchar(char msg){
-    *uart_addr = msg;
-    return;
-}
-
-void my_getchar(char* c) {
-    unsigned int value = *((unsigned int*) uart_addr + 1);
-    while (value & 0x80000000) {
-        value = *((unsigned int*) uart_addr + 1);
-    }
-    *c = value & 0xFF;
-    return;
-}
-
 void _prints(char* msg){
     *(uart_addr + 2) |= 1;
     *(uart_addr + 3) |= 1;
     while(*msg != '\0'){
-        my_putchar(*msg);
+        putc(*msg);
         msg++;
     }
     return;
@@ -103,19 +89,21 @@ void printf(char* format_str, ...){
             switch (*(ptr + 1)){
                 case 'd': 
                     str_conversion = int_to_str(va_arg(list, int), FALSE); break;
-                case 'f':
-                    // float -> die
-                    break;
                 case 's':
-                    // string
+                    str_conversion = va_arg(list, char*);
+                    _prints(str_conversion);
+                    ptr += 2;
+                    continue;
                 case 'c':
-                    // char
+                    // char c = va_arg(list, char);
+                    // putc(c); 
+                    break;
                 case 'x':
                     str_conversion = to_hex_str(va_arg(list, unsigned long)); break;
                 case 'l':
                     str_conversion = int_to_str(va_arg(list, long), TRUE); break;
                 default:
-                    continue;
+                    break;
             }
 
             if(str_conversion){
@@ -124,7 +112,7 @@ void printf(char* format_str, ...){
             }
             ptr++;
         }else{
-            my_putchar(*ptr);
+            putc(*ptr);
         }
         ptr++;
     }

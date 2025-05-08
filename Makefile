@@ -6,7 +6,8 @@ SCHEDCSRCS=$(shell find scheduler/$(SRC_DIR)/*.c 2>/dev/null)
 SCHEDASMSRCS=$(shell find scheduler/$(SRC_DIR)/*.s 2>/dev/null)
 SRCS:=$(SCHEDCSRCS) $(SCHEDASMSRCS) $(BOOTCSRCS) $(BOOTASMSRCS)
 TOBJS=$(patsubst %.c, %.o, $(SRCS))
-TOBJS:=$(patsubst %.s, %.o, $(TOBJS))
+TOBJS:=$(patsubst %.s, %_s.o, $(TOBJS))
+TOBJS:=$(patsubst %_start_s.o, %_start.o, $(TOBJS))
 TOBJS:=$(patsubst bootloader/$(SRC_DIR)/%, $(BIN_DIR)/%, $(TOBJS))
 OBJS=$(patsubst scheduler/$(SRC_DIR)/%, $(BIN_DIR)/%, $(TOBJS))
 INCLUDE_PATH=bootloader/include/ -I scheduler/include/
@@ -29,12 +30,18 @@ debug: $(DEBUG_BIN_DIR) $(DTARGET)
 
 # @ is the rule, ^ is the prereqs
 $(TARGET): $(OBJS)
+	@echo $(OBJS)
 	$(LINKER) -o $@ $^ -T $(LINKERFILE) $(LFLAGS)
 
 $(BIN_DIR)/%.o: */$(SRC_DIR)/%.c
 	$(CC) -c $< -o $@ $(RISCVFLAGS) -I $(INCLUDE_PATH) -w
 
-$(BIN_DIR)/%.o: */$(SRC_DIR)/%.s
+# append an _s to the assembly object files to allow same-name files
+$(BIN_DIR)/%_s.o: */$(SRC_DIR)/%.s
+	$(CC) $(RISCVFLAGS) -o $@ -c $< -I $(INCLUDE_PATH)
+
+# unknown ELF requires a start.o object, so we need to compile this specially
+$(BIN_DIR)/_start.o: */$(SRC_DIR)/_start.s
 	$(CC) $(RISCVFLAGS) -o $@ -c $< -I $(INCLUDE_PATH)
 
 $(BIN_DIR):
