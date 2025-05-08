@@ -36,6 +36,8 @@ trap_handler:
 
     beq zero, t0, hart3_mstack_init
 
+    csrr t0, mscratch
+
     mret
 
 hart0_mstack_init:
@@ -116,10 +118,10 @@ scheduler_trap_handler:
     li s1,50       # change back to 100
     li s2,2047
 
-    # t2 = 204,700
+    # s2 = 204,700
     mul s2,s2,s1
 
-    # increment the value of mtime by t2
+    # increment the value of mtime by s2
     add s0,s0,s2
 
     # load the mtimecmp address for core 0
@@ -150,9 +152,3 @@ taskmanager_trap_handler:
     ld ra, 0(sp)
     addi sp, sp, 16
     ret
-
-
-exit:
-    li a7, 10
-    li a0, 0
-    ecall
