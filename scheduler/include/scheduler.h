@@ -13,4 +13,9 @@ void scheduler();
 schedule_t* build_schedule(void);
 extern void ping_taskmanager();
 
+typedef struct SchedulerMessage_s{
+    int task;                   // which task to execute
+    int execution_time;         // how long to execute it for (in ms)
+} scheduler_message_t;
+
 #endif

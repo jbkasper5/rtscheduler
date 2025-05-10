@@ -41,7 +41,6 @@ void swap(pq_t* pq, int idx1, int idx2){
     pq->arr[idx2] = temp;
 }
 
-// tentative done
 void sink(pq_t* pq, int idx){
     int lc = LEFTCHILD(idx);
     int rc = RIGHTCHILD(idx);
@@ -67,7 +66,6 @@ void sink(pq_t* pq, int idx){
     }
 }
 
-// tentative done
 void swim(pq_t* pq, int idx){
     if(idx <= 0) return;
     if(pq->arr[PARENT(idx)].priority > pq->arr[idx].priority){
@@ -76,7 +74,6 @@ void swim(pq_t* pq, int idx){
     }
 }
 
-// tentative done
 pqnode_t* peek(pq_t* pq){
     if(!pq->len) return NULL;
     return pq->arr;

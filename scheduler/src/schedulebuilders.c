@@ -75,8 +75,6 @@ schedule_t* edf_scheduler(taskset_t* taskset) {
     int result;
     for(int i = 0; i < schedule->len; i++){
         result = schedule_task(curr_timeunit, pq, taskset, edf_priority_func);
-        printf("Curr timeunit: %d\n", curr_timeunit);
-        printf("Task to be scheduled: %d\n", result);
 
         // if we missed a deadline, destroy everything we malloc'd and return
         if(result == UNSCHEDULABLE){
@@ -91,6 +89,11 @@ schedule_t* edf_scheduler(taskset_t* taskset) {
         // move onto the next time unit
         curr_timeunit++;
     }
+    printf("\nSchedule: [");
+    for(int i = 0; i < schedule->len; i++){
+        printf(i != schedule->len - 1 ? "%d, " : "%d", schedule->schedule[i]);
+    }
+    printf("]\n\n");
     pq_destroy(pq);
     return schedule;
 }

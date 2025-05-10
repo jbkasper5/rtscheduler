@@ -8,7 +8,7 @@
 #include "syscalls.h"
 
 
-void task(unsigned long execution_time);
+void task(int task_num, unsigned long execution_time);
 void tm_main();
 
 #endif

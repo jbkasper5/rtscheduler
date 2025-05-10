@@ -58,7 +58,7 @@ taskman_proc_init:
     addi sp,sp,-8
     sd ra,0(sp)
 
-    # enable software interrupts for only the task manager process
+    # enable timer and software interrupts for the TM
     li t0, 0xf
     csrs mie, t0                             
 

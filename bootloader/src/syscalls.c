@@ -1,4 +1,5 @@
 #include "syscalls.h"
+#include "macros.h"
 
 void putc(char c){
     *uart_addr = c;
@@ -12,4 +13,11 @@ void getc(char* c) {
     }
     *c = value & 0xFF;
     return;
+}
+
+// sleep a task for some number of MS
+// NOTE: can only be invoked by non-scheduler harts
+void sleep(uint64_t ms){
+    // rough conversion to ms in machine clock cycle time
+    set_timer(hartid(), ms * 1000);
 }

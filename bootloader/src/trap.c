@@ -24,11 +24,6 @@ unsigned long sched_trap(unsigned long mcause, unsigned long mepc){
 
 unsigned long tm_trap(unsigned long mcause, unsigned long mepc){
     // gracefully do nothing
-    if(mcause != SW_INTERRUPT){
-        printf("TM trap\n");
-        printf("tm mcause: 0x%x\n", mcause);
-        printf("tm mepc: 0x%x\n", mepc);
-    }
     taskmanager_trap_handler();
     return mepc;
 }

@@ -1,11 +1,11 @@
 #include "ihc.h"
-
-void write_message(int hart, ihc_msg_t* message){
+#include "scheduler.h"
+void write_message(int hart, void* message, uint64_t bytes){
     void* addr = UNSCALED_POINTER_ADD(IHC_ZONE_START, (hart * IHC_ZONE_SIZE));
-    memcpy(message, addr, sizeof(ihc_msg_t));
+    memcpy(message, addr, sizeof(scheduler_message_t));
 }
 
-void read_message(int hart, ihc_msg_t* dest){
+void read_message(int hart, void* dest, uint64_t bytes){
     void* addr = UNSCALED_POINTER_ADD(IHC_ZONE_START, (hart * IHC_ZONE_SIZE));
-    memcpy(addr, dest, sizeof(ihc_msg_t));
+    memcpy(addr, dest, sizeof(scheduler_message_t));
 }

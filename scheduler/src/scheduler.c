@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include "stdint.h"
 
 schedule_t* build_schedule(void){
     taskset_t* set = &TaskSet;
@@ -14,6 +15,14 @@ schedule_t* build_schedule(void){
     }
 }
 
+int get_execution_time(schedule_t* sched, int timeunit, int task){
+    for(int i = timeunit; i < sched->len; i++){
+        if(sched->schedule[i] != task){
+            return i - timeunit;
+        }
+    }
+}
+
 void scheduler(){
     schedule_t* sched = build_schedule();
     if(!sched || !sched->schedule){
@@ -26,11 +35,11 @@ void scheduler(){
     printf("Beginning scheduling...\n");
 
     // will maintain clock times to determine if timeunits have passed
-    unsigned long prev_time = mstime();
-    unsigned long sched_curr_time;
+    uint64_t prev_time = mstime();
+    uint64_t sched_curr_time;
 
     // IDLE is defined in macros.h
-    unsigned int curr_running_task = IDLE;
+    uint32_t curr_running_task = IDLE;
     while(1){
         WFI();
 
@@ -48,15 +57,19 @@ void scheduler(){
                 curr_timeunit = 0;
             }
             if(sched->schedule[curr_timeunit] != curr_running_task){
-                if(sched->schedule[curr_timeunit] == IDLE){
-                    printf("Switching to IDLE.\n");
-                }else{
-                    printf("Switching to task %d\n", sched->schedule[curr_timeunit]);
-                }
+                if(sched->schedule[curr_timeunit] != IDLE){
+                    curr_running_task = sched->schedule[curr_timeunit];
+
+                    scheduler_message_t msg = {
+                        .task = curr_running_task,
+                        .execution_time = get_execution_time(sched, curr_timeunit, curr_running_task)
+                    };
+
+                    // 1 is the hartID of the task manager
+                    write_message(1, &msg, sizeof(scheduler_message_t));
+                    ping_taskmanager();
+                }else printf("Switching to IDLE.\n");
                 curr_running_task = sched->schedule[curr_timeunit];
-                ping_taskmanager();
-            }else{
-                printf("Continuing task...\n");
             }
             curr_timeunit++;
         }

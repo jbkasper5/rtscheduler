@@ -115,7 +115,7 @@ scheduler_trap_handler:
 
     # load the value from mtime
     lw s0,(s0)
-    li s1,50       # change back to 100
+    li s1,500       # change back to 100
     li s2,2047
 
     # s2 = 204,700
@@ -147,6 +147,13 @@ taskmanager_trap_handler:
     # acknowledge the interrupt and set the bit back to 0
     li s0, 0x02000004         # address of core 1's msip CSR
     sd zero, (s0)
+
+    # load the mtimecmp address for core 1
+    li t0,0x2004008
+    li s0, -1
+
+    # store -1 in mtimecmp to acknowledge possible timer interrupts
+    sw s0,(t0) 
 
     ld s0, 8(sp)
     ld ra, 0(sp)

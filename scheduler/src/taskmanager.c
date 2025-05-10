@@ -1,31 +1,31 @@
 #include "taskmanager.h"
-
-void task(unsigned long execution_time);
-
-// since the stacks are small ish, put this in static data since it's 1 KiB
-ihc_msg_t msg;
+#include "scheduler.h"
+#include "syscalls.h"
 
 void tm_main(void){
-    long* val;
-    unsigned int hart;
+    scheduler_message_t msg;
     while(1){
-        // slep
+        // sleep until given directive by the scheduler
         WFI();
-        printf("TM: Reading message...\n");
 
-        // once the tm is woked, read a communication from the scheduler
-        read_message(hartid(), &msg);
+        // once the tm is waken, read a communication from the scheduler
+        read_message(hartid(), &msg, sizeof(scheduler_message_t));
 
-        // do stuff with the scheduler's message
+        // initiate the task given by the scheduler
+        task(msg.task, msg.execution_time);
 
-        // clear the message
-        memset(&msg, 0, sizeof(ihc_msg_t));
+        // clear the old message
+        memset(&msg, 0, sizeof(IHC_ZONE_SIZE));
     }
     return;
 }
 
 
 // function to spin a task for it's execution time
-void task(unsigned long execution_time){
-    WFI();
+void task(int task_num, uint64_t execution_time){
+    printf("Starting allotted execution for task %d\n", task_num);
+
+    // subtract 100 to give a small buffer for the TM to finish before being pinged again
+    sleep(TIMEUNIT_TO_MS(execution_time) - 100);
+    printf("Execution finished.\n");
 }

@@ -1,0 +1,208 @@
+riscv64-unknown-elf-gcc -mcmodel=medany -march=rv64g -mabi=lp64 -o bin/syscalls_s.o -c bootloader/src/syscalls.s -I bootloader/include/ -I scheduler/include/
+bin/main.o bin/pq.o bin/schedulebuilders.o bin/scheduler.o bin/taskmanager.o bin/ihc.o bin/malloc.o bin/mem.o bin/mstime.o bin/print.o bin/syscalls.o bin/trap.o bin/_start.o bin/boot_s.o bin/ping_s.o bin/spinlock_s.o bin/syscalls_s.o bin/time_s.o bin/traphandler_s.o
+riscv64-unknown-elf-ld -o exe bin/main.o bin/pq.o bin/schedulebuilders.o bin/scheduler.o bin/taskmanager.o bin/ihc.o bin/malloc.o bin/mem.o bin/mstime.o bin/print.o bin/syscalls.o bin/trap.o bin/_start.o bin/boot_s.o bin/ping_s.o bin/spinlock_s.o bin/syscalls_s.o bin/time_s.o bin/traphandler_s.o -T bootloader/linker.ld 
+qemu-system-riscv64 -machine sifive_u -serial stdio -bios exe
+TM trying to set a timer...
+1
+1030
+Building EDF schedule.
+33570824
+1030
+
+Schedule: [1, 1, 0, -1, -1, -1, 0, -1, -1, -1]
+
+Beginning scheduling...
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x8000000000000007
+tm mepc: 0x800023AC
+TM trap
+tm mcause: 0x
