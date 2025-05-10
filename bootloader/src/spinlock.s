@@ -3,8 +3,8 @@
 printlock: .dword 1
 .align 3
 mlock: .dword 1
-.section .text
 
+.section .text
 # make visible to c files and other assembly files
 .globl lock_acquire
 .globl lock_release
@@ -37,7 +37,7 @@ lock_release:
 
     move s0, a0                         # load address of parameter spinlock
     li t1, 1                            # load immediate 1, for unlocked
-    amoswap.w t2, t1, (s0)              # atomically swap a 1 into the spinlock address
+    amoswap.w t2, t1, (s0)              # atomically swap a 1 into the spinlock
 
     ld ra,0(sp)
     ld s0, 8(sp)

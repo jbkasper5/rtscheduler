@@ -1,24 +1,16 @@
 # create an 8KiB region of memory, initialized to zero
 .section .data
-    .fill 2048, 4, 0
-hart0stack:
-    .fill 2048, 4, 0
-hart1stack:
-heap:
-    # create a 32 KiB heap
-    .fill 8192, 4, 0
-.globl heap
-
 .align 3
 printlock: .dword 1
 
 .section .text
-.globl _start
+.globl init
+.globl _infinite
 
-_start:
+init:
     # 11 leading zeroes, then 11 -> 0001 1000 0000 0000
     # two ones set both MPP bits to 1
-    li      t0, 0x1800                  # address of MIE within mstatus
+    li      t0, 0x3800                  # address of MIE within mstatus
     csrc    mstatus, t0                 # enable machine-mode interrupts
 
     # binary -> 1000 0000 1010
@@ -66,7 +58,7 @@ taskman_proc_init:
     addi sp,sp,-8
     sd ra,0(sp)
 
-    # enable software interrupts for only the task manager process
+    # enable timer and software interrupts for the TM
     li t0, 0xf
     csrs mie, t0                             
 
@@ -78,4 +70,3 @@ taskman_proc_init:
 
 _infinite:    
     j _infinite                         # trap other cores
-

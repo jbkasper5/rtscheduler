@@ -1,23 +1,8 @@
-.section .rodata
-th:
-   .string "Trap handler\n"
-
-# define the 4-core trap stacks
-# each one is 4KiB
-.section .data
-    .fill 1024, 4, 0
-mstackhart0:
-    .fill 1024, 4, 0
-mstackhart1:
-    .fill 1024, 4, 0
-mstackhart2:
-    .fill 1024, 4, 0
-mstackhart3:
-
 .section .text
 .globl trap_handler
 .globl taskmanager_trap_handler
 .globl scheduler_trap_handler
+.globl exit
 
 .altmacro
 .macro save_gp i
@@ -31,8 +16,11 @@ mstackhart3:
 .endm
 
 trap_handler: 
-    # store the current t0 and t1 into scratch
+    # store the current t0 into scratch
     csrw mscratch, t0
+
+    # read the hartid into t0
+    csrr t0, mhartid
 
     beq zero, t0, hart0_mstack_init
 
@@ -47,6 +35,8 @@ trap_handler:
     addi t0, t0, -1
 
     beq zero, t0, hart3_mstack_init
+
+    csrr t0, mscratch
 
     mret
 
@@ -125,13 +115,13 @@ scheduler_trap_handler:
 
     # load the value from mtime
     lw s0,(s0)
-    li s1,50       # change back to 100
+    li s1,500       # change back to 100
     li s2,2047
 
-    # t2 = 204,700
+    # s2 = 204,700
     mul s2,s2,s1
 
-    # increment the value of mtime by t2
+    # increment the value of mtime by s2
     add s0,s0,s2
 
     # load the mtimecmp address for core 0
@@ -158,8 +148,14 @@ taskmanager_trap_handler:
     li s0, 0x02000004         # address of core 1's msip CSR
     sd zero, (s0)
 
+    # load the mtimecmp address for core 1
+    li t0,0x2004008
+    li s0, -1
+
+    # store -1 in mtimecmp to acknowledge possible timer interrupts
+    sw s0,(t0) 
+
     ld s0, 8(sp)
     ld ra, 0(sp)
     addi sp, sp, 16
     ret
-

@@ -1,195 +1,192 @@
 #include "schedulebuilders.h"
 #include "print.h"
+#include "macros.h"
 
-// TODO: inefficient
-float nth_pow(float x, int n) {
-    float X = x;
-    for (int i = 1; i < n; i++) {
-        X *= x;
+// –––––––––––––––––––––– HELPER FUNCTIONS –––––––––––––––––––––– //
+// perform the euclidean algorithm
+long gcd(long a, long b){
+    int div;
+    int remainder = a;
+    a = MAX(remainder, b);
+    b = MIN(remainder, b);
+    while(remainder){
+        remainder = a % b;
+        a = b;
+        b = remainder;
     }
-    return X;
+    return a;
 }
 
-// https://en.wikipedia.org/wiki/Nth_root#Using_Newton's_method
-// x^(1/n)
-float nth_root(int x, int n) {
-    float X[10] = {x / n, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // X_0 = initial guess
-    for (int i = 0; i < 9; i++) {
-        X[i + 1] = ((n - 1) * X[i] / n) + ((x / n) * (1 / nth_pow(X[i], n - 1)));
-    }
-    return X[9];  // hopefully 9 iterations is good enough
+long lcm(long a, long b){
+    return (a * b / gcd(a, b));
 }
 
-int rm_least_upper_bound(taskset_t* taskset) {
-    float util = 0;
-    for (int i = 0; i < taskset->length; i++) {
-        util += (float)(taskset->tasks[i]->execution_time / taskset->tasks[i]->period);
-    }
-    float bound = taskset->length * (nth_root(2, taskset->length) - 1);
-    return (util <= bound);
+int edf_priority_func(task_t* task, int timeunit){
+    return (task->deadline + timeunit);
 }
 
-int rm_hyperbolic_bound(taskset_t* taskset) {
-    float util = 0;
-    for (int i = 0; i < taskset->length; i++) {
-        util *= ((float)taskset->tasks[i]->execution_time / taskset->tasks[i]->period + 1);
-    }
-    P("Product: %f\n", util);
-    return (util <= 2);
+int rm_priority_func(task_t* task, int timeunit){
+    return task->period;
 }
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– //
 
-int rm_response_time_analysis(taskset_t* taskset) { return 0; }
-
-int edf_utilization_bound(taskset_t* taskset) {
-    double u = 0;
-    for (int i = 0; i < taskset->length; i++) {
-        task_t* task = taskset->tasks[i];
-        u += task->execution_time / task->period;
-    }
-    return u <= 1;
-}
-
-void min_period(taskset_t* taskset, task_t* out[], int* indexes) {
-    // iterate over all tasks in the taskset
-    for (int i = 0; i < taskset->length; i++) {
-
-        // get the minimum task, equal to the current task
-        task_t* min = taskset->tasks[i];
-
-        // save the minimum index
-        int index = i;
-
-        // iterate over the remaining tasks in the taskset
-        for (int j = i + 1; j < taskset->length; j++) {
-
-            // if the task has a period less than that of our minimum, we swap
-            if (taskset->tasks[j]->period < min->period) {
-                min = taskset->tasks[j];
-                index = j;
-            }
-        }
-
-        // mark index i as task with the minimum period from the remaining tasks
-        out[i] = min;
-
-        // if indexes isn't null, set the current task index to index
-        if (indexes != NULL) {
-            indexes[i] = index;
-        }
-    }
-}
-
-// TODO: make generic
-void min_deadline(taskset_t* taskset, task_t* out[], int* indexes) {
-    for (int i = 0; i < taskset->length; i++) {
-        task_t* min = taskset->tasks[i];
-        int index = i;
-        for (int j = i + 1; j < taskset->length; j++) {
-            if (taskset->tasks[j]->period < min->period) {
-                min = taskset->tasks[j];
-                index = j;
-            }
-        }
-        out[i] = min;
-
-        if (indexes != NULL) {
-            indexes[i] = index;
-        }
-    }
-}
 
 schedule_t* edf_scheduler(taskset_t* taskset) {
-    if (!edf_utilization_bound(taskset)) {
+    schedule_t* schedule = (schedule_t*) malloc(sizeof(schedule_t));
+    pq_t* pq = pq_init(taskset->length);
+    int curr_gcd, curr_lcm;
+
+    if(taskset->length < 2){
+        // gcd, lcm is just the one task
+        curr_lcm = taskset->tasks[0]->period;
+        curr_gcd = taskset->tasks[0]->period;
+    }else{
+        // get the baseline gcd and lcm of the first tasks
+        curr_gcd = gcd(taskset->tasks[0]->period, taskset->tasks[1]->period);
+        curr_lcm = lcm(taskset->tasks[0]->period, taskset->tasks[1]->period);
+    }
+
+    int newgcd, newlcm;
+    for(int i = 0; i < taskset->length; i++){
+        task_t* taskp = taskset->tasks[i];
+
+        newgcd = gcd(curr_gcd, taskset->tasks[i]->period);
+        if(newgcd > curr_gcd) curr_gcd = newgcd;
+
+        newlcm = lcm(curr_lcm, taskset->tasks[i]->period);
+        if(newlcm < curr_lcm) curr_lcm = newlcm;
+    }
+
+    int curr_timeunit = 0;
+    schedule->macrocycles = curr_lcm;
+    schedule->microcycles = curr_gcd;
+
+    schedule->schedule = (int*)malloc(sizeof(int) * curr_lcm);
+    if(!schedule->schedule){
+        pq_destroy(pq);
         return NULL;
     }
-    taskset->schedulable = TRUE;
+    schedule->len = curr_lcm;
 
-    // Sort tasks by smallest -> largest deadline
-    int indexes[taskset->length];
-    task_t* minDeadline[taskset->length];
-    min_deadline(taskset, minDeadline, indexes);
-    task_t* minPeriod[taskset->length];
-    min_period(taskset, minPeriod, NULL);
-    int scheduleSize = minPeriod[0]->period;
 
-    // initialize schedule to -1 at all time t
-    int sched[1000];
-    for (int i = 0; i < scheduleSize; i++) {
-        sched[i] = -1;
-    }
+    // logic to actually build the schedule
+    // populate every index in the schedule with the task that should run
+    // -1 denotes CPU idle time
+    int result;
+    for(int i = 0; i < schedule->len; i++){
+        result = schedule_task(curr_timeunit, pq, taskset, edf_priority_func);
 
-    // fill in which task is executing at which t based on their period & deadline
-    // assuming each index in the schedule is 1 time unit away
-    int taskI = 0;
-    for (int t = 0; t < scheduleSize; t++) {
-        task_t* task = minDeadline[taskI];
-        if (t >= task->offset + task->execution_time) {
-            if (taskI + 1 >= taskset->length) {
-                break;
-            }
-            task = minDeadline[++taskI];
+        // if we missed a deadline, destroy everything we malloc'd and return
+        if(result == UNSCHEDULABLE){
+            free(schedule->schedule);
+            free(schedule);
+            pq_destroy(pq);
+            return NULL;
         }
 
-        if (t < task->offset) {
-            continue;
-        }
 
-        sched[t] = indexes[taskI];
+        schedule->schedule[curr_timeunit] = result;
+        // move onto the next time unit
+        curr_timeunit++;
     }
-
-    // for (int i = 0; i < scheduleSize; i++) {
-    //     printf("%d ", sched[i]);
-    // }
-    // printf("\n");
-
-    schedule.schedule = sched;
-
-    return &schedule;
+    printf("\nSchedule: [");
+    for(int i = 0; i < schedule->len; i++){
+        printf(i != schedule->len - 1 ? "%d, " : "%d", schedule->schedule[i]);
+    }
+    printf("]\n\n");
+    pq_destroy(pq);
+    return schedule;
 }
 
+
 schedule_t* rm_scheduler(taskset_t* taskset) {
-    if (!rm_least_upper_bound(taskset)) {
+    schedule_t* schedule = (schedule_t*) malloc(sizeof(schedule_t));
+    pq_t* pq = pq_init(taskset->length);
+    int curr_gcd, curr_lcm;
+
+    if(taskset->length < 2){
+        // gcd, lcm is just the one task
+        curr_lcm = taskset->tasks[0]->period;
+        curr_gcd = taskset->tasks[0]->period;
+    }else{
+        // get the baseline gcd and lcm of the first tasks
+        curr_gcd = gcd(taskset->tasks[0]->period, taskset->tasks[1]->period);
+        curr_lcm = lcm(taskset->tasks[0]->period, taskset->tasks[1]->period);
+    }
+
+    int newgcd, newlcm;
+    for(int i = 0; i < taskset->length; i++){
+        task_t* taskp = taskset->tasks[i];
+
+        newgcd = gcd(curr_gcd, taskset->tasks[i]->period);
+        if(newgcd > curr_gcd) curr_gcd = newgcd;
+
+        newlcm = lcm(curr_lcm, taskset->tasks[i]->period);
+        if(newlcm < curr_lcm) curr_lcm = newlcm;
+    }
+
+    int curr_timeunit = 0;
+    schedule->macrocycles = curr_lcm;
+    schedule->microcycles = curr_gcd;
+
+    schedule->schedule = (int*)malloc(sizeof(int) * curr_lcm);
+    if(!schedule->schedule){
+        pq_destroy(pq);
         return NULL;
     }
-    prints("Passed test.\n");
-    taskset->schedulable = TRUE;
+    schedule->len = curr_lcm;
 
-    // Sort tasks by smallest -> largest period
-    int indexes[taskset->length];
-    task_t* minPeriod[taskset->length];
-    min_period(taskset, minPeriod, indexes);
 
-    // assuming execution time < period
-    // and no preemption
-    // initialize schedule to -1 at all time t
-    int sched[(int)minPeriod[0]->period];
-    for (int i = 0; i < minPeriod[0]->period; i++) {
-        sched[i] = -1;
-    }
+    // logic to actually build the schedule
+    // populate every index in the schedule with the task that should run
+    // -1 denotes CPU idle time
+    int result;
+    for(int i = 0; i < schedule->len; i++){
+        result = schedule_task(curr_timeunit, pq, taskset, rm_priority_func);
+        printf("Curr timeunit: %d\n", curr_timeunit);
+        printf("Task to be scheduled: %d\n", result);
 
-    // fill in which task is executing at which t based on their period
-    // assuming each index in the schedule is 1 time unit away
-    int t = 0;
-    for (int i = 0; i < taskset->length; i++) {
-        task_t* task = minPeriod[i];
-
-        // could fit other tasks based on their offset here
-        while (t < (int)(task->offset)) {
-            t++;
+        // if we missed a deadline, destroy everything we malloc'd and return
+        if(result == UNSCHEDULABLE){
+            free(schedule->schedule);
+            free(schedule);
+            pq_destroy(pq);
+            return NULL;
         }
 
-        for (int j = 0; j < task->execution_time; j++) {
-            sched[t] = indexes[i];
-            t++;
+
+        schedule->schedule[curr_timeunit] = result;
+        // move onto the next time unit
+        curr_timeunit++;
+    }
+    pq_destroy(pq);
+    return schedule;
+}
+
+int schedule_task(int timeunit, pq_t* pq, taskset_t* taskset, PRIORITY_FUNCTION f){
+    // step 1. Determine who enters the PQ (if anyone)
+    for(int i = 0; i < taskset->length; i++){
+        task_t* task = taskset->tasks[i];
+
+        // task period expired, time to schedule it again
+        if((timeunit - task->offset) % task->period == 0){
+            // step 2. add to PQ (translating relative deadline to absolute)
+            pq_add(pq, f(task, timeunit), task->execution_time, (task->deadline + timeunit), i);
         }
     }
 
-    // for (int i = 0; i < minPeriod[0]->period; i++) {
-    //     printf("%d ", sched[i]);
-    // }
-    // printf("\n");
+    // step 3. get the task at the top of the PQ, should be -1 if PQ is empty
+    pqnode_t* pq_head = peek(pq);
+    if(!pq_head) return IDLE;
 
-    schedule.schedule = sched;
+    // step 4. check the deadline (which is the PQ's priority)
+    if(pq_head->deadline <= timeunit) return UNSCHEDULABLE;
 
-    return &schedule;
+    // step 5. age the task and figure out if it's done
+    pq_head->remaining--;
+    int task = pq_head->task;
+    if(!pq_head->remaining) pop(pq);
+
+    // return the task
+    return task;
 }

@@ -1,8 +1,6 @@
 #include "scheduler.h"
-#include "print.h"
 
-int main(){
-    prints("Main\n");
+int main(int argc, char** argv){
     scheduler();
     return 0;
 }

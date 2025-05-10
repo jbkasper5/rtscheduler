@@ -1,7 +1,14 @@
 #ifndef __TASKMANAGER_H__
 #define __TASKMANAGER_H__
 
-void task(unsigned long execution_time);
+#include "print.h"
+#include "time.h"
+#include "malloc.h"
+#include "ihc.h"
+#include "syscalls.h"
+
+
+void task(int task_num, unsigned long execution_time);
 void tm_main();
 
 #endif

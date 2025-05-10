@@ -2,6 +2,14 @@
 
 This project implements a RISCV bootloader that creates a real-time scheduling process and a task managing process. The scheduling process is responsible for constructing an offline schedule using **Rate Monotonic** and **Earliest Deadline First** algorithms. 
 
+## The LinkerScript
+
+Since this project is trying to boot an empty board, there is no operating system to define system calls, page tables, or any allocation of memory for our program. With that in mind, we need to explicitly define sections of memory such that the bootloader can behave in a predictable manner. To this end, we need to carefully construct the hart's user stacks, trap stacks, and a heap for dynamic memory allocation. 
+
+In this project, each user stack is an 8 KiB stack, the mstacks are all 4 KiB, and the heap is 32 KiB. With this in mind, we have a total of 80 KiB designated for stacks and the heap, reflected in `linker.ld` by defining the `stack_and_heap` section to be `81920` bytes long. 
+
+Alongside the stack and heap sections, we want to create a specific zone designed for inter-hart communication (IHC), which allows the harts to send more than just interrupts to each other. In this system, the hart can trigger a SWI for another hart by writing to the hart's pending interrupt CSR (`sip`), and the revived hart can then read data from it's designated IHC zone that the original sender of the interrupt passed data to. In this fashion, the scheduler hart is able to communicate which tasks should be executing when by passing along this information to the task manager's IHC zone. Much like how the stack and heap sections of memory were defined manually in the linker, the IHC zone must also be manually defined. 
+
 ## The Bootloader
 
 This bootloader is implemented using C and RISCV architecture, emulated using QEMU. In general, the boot process is responsible for initializing necessary hardware, constructing the memory spaces, and designating processes to these resources. In this project specifically, the bootloader was responsible for interrupt enabling as well as creating stack memory and spinlocks for process synchronization. This bootloader designates a 4KiB stack, with plans to designate a heap and a custom slab allocator malloc implementation. 
@@ -25,4 +33,9 @@ In order to handle interrupts within the booting process, it's important to unde
     + Thing
 
 To see more information on the registers and their bitmaps, see [here](https://people.eecs.berkeley.edu/~krste/papers/riscv-privileged-v1.9.1.pdf) for the documentation.
-### 
+
+## The Scheduler
+
+### RISC-V QEMU Boards
+
+[here](https://www.qemu.org/docs/master/system/target-riscv.html)
